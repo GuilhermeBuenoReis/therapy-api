@@ -12,6 +12,7 @@
     "pretest:watch": "npm run db:migrate:test",
     "db:migrate:test": "dotenv -e .env.test -- drizzle-kit migrate",
     "test": "dotenv -e .env.test -- vitest run",
+    "test:unit": "vitest run",
     "test:watch": "dotenv -e .env.test -- vitest",
     "test:ci": "dotenv -e .env.test -- vitest run"
   },
@@ -24,7 +25,8 @@
     "@types/node": "^24.10.1",
     "drizzle-kit": "^0.31.7",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
@@ -36,6 +38,7 @@
     "fastify": "^5.6.2",
     "fastify-type-provider-zod": "^6.1.0",
     "pg": "^8.16.3",
+    "unplugin-swc": "^1.5.9",
     "zod": "^4.1.13"
   }
 }
