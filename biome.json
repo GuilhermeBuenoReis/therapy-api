@@ -22,7 +22,8 @@
 			"complexity": {
 				"noForEach": "off",
 				"noUselessConstructor": "off",
-				"useLiteralKeys": "off"
+				"useLiteralKeys": "off",
+				"noBannedTypes": "off"
 			},
 			"suspicious": {
 				"noExplicitAny": "off",
