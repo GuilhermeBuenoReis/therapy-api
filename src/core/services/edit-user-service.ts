@@ -1,7 +1,7 @@
 import type { User } from '../entities/user';
 import type { UserRepository } from '../repositories/user-repository';
 import { type Either, left, right } from '../utils/either';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorUserNotFound } from './errors/user-not-found';
 
 interface EditUserServiceRequest {
   userId: string;
@@ -11,7 +11,7 @@ interface EditUserServiceRequest {
 }
 
 type EditUserServiceResponse = Either<
-  UserNotFound,
+  ErrorUserNotFound,
   {
     user: User;
   }
@@ -29,7 +29,7 @@ export class EditUserService {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      return left(new UserNotFound());
+      return left(new ErrorUserNotFound());
     }
 
     user.name = name;

@@ -1,7 +1,7 @@
 import type { Patient } from '../entities/patient';
 import type { PatientRepository } from '../repositories/patient-repository';
 import { type Either, left, right } from '../utils/either';
-import { PatientNotFound } from './errors/patient-not-found';
+import { ErrorPatientNotFound } from './errors/patient-not-found';
 
 interface EditPatientServiceRequest {
   patientId: string;
@@ -12,7 +12,7 @@ interface EditPatientServiceRequest {
 }
 
 type EditPatientServiceResponse = Either<
-  PatientNotFound,
+  ErrorPatientNotFound,
   {
     patient: Patient;
   }
@@ -31,7 +31,7 @@ export class EditPatientService {
     const patient = await this.patientRepository.findById(patientId);
 
     if (!patient) {
-      return left(new PatientNotFound());
+      return left(new ErrorPatientNotFound());
     }
 
     patient.name = name;

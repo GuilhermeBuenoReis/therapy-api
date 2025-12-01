@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryPatientRepository } from '../../../test/repositories/in-memory-patient-repository';
 import { Patient } from '../entities/patient';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { PatientNotFound } from './errors/patient-not-found';
+import { ErrorPatientNotFound } from './errors/patient-not-found';
 import { FindPatientByProfessionalIdService } from './find-patient-by-professional-id-service';
 
 let sut: FindPatientByProfessionalIdService;
@@ -48,7 +48,7 @@ describe('Find Patient By Professional Id Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(PatientNotFound);
+      expect(result.value).toBeInstanceOf(ErrorPatientNotFound);
     }
   });
 });

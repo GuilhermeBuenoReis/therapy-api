@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryUserRepository } from '../../../test/repositories/in-memory-user-repository';
 import { User } from '../entities/user';
 import { CreateUserService } from './create-user-service';
-import { UserAlreadyExist } from './errors/user-already-exist';
+import { ErrorUserAlreadyExists } from './errors/user-already-exist';
 
 let sut: CreateUserService;
 let inMemoryUserRepository: InMemoryUserRepository;
@@ -42,7 +42,7 @@ describe('Create User Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(UserAlreadyExist);
+      expect(result.value).toBeInstanceOf(ErrorUserAlreadyExists);
     }
     expect(inMemoryUserRepository.items).toHaveLength(1);
     expect(inMemoryUserRepository.items[0].email).toEqual('jhondoe@gmail.com');

@@ -1,6 +1,6 @@
-export class PatientNotLinkedToAProfessional extends Error {
+export class ErrorPatientNotLinkedToProfessional extends Error {
   constructor(id: string) {
-    super(`Patient not linked to a professional with id: ${id}`);
-    this.name = 'ProfessionalsNotFound';
+    super(`Patient not linked to a professional with id: ${id}.`);
+    this.name = 'ErrorPatientNotLinkedToProfessional';
   }
 }

@@ -3,7 +3,7 @@ import { InMemoryUserRepository } from '../../../test/repositories/in-memory-use
 import { User } from '../entities/user';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { EditUserService } from './edit-user-service';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorUserNotFound } from './errors/user-not-found';
 
 let sut: EditUserService;
 let inMemoryUserRepository: InMemoryUserRepository;
@@ -54,7 +54,7 @@ describe('Edit User Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(UserNotFound);
+      expect(result.value).toBeInstanceOf(ErrorUserNotFound);
     }
   });
 });

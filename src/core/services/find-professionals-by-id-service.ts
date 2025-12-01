@@ -1,14 +1,14 @@
 import type { Professionals } from '../entities/professionals';
 import type { ProfessionalsRepository } from '../repositories/professionals-repository';
 import { type Either, left, right } from '../utils/either';
-import { ProfessionalsNotFound } from './errors/professionals-not-found';
+import { ErrorProfessionalsNotFound } from './errors/professionals-not-found';
 
 export interface FindProfessionalsByIdServiceRequest {
   professionalId: string;
 }
 
 type FindProfessionalsByIdServiceResponse = Either<
-  ProfessionalsNotFound,
+  ErrorProfessionalsNotFound,
   { professional: Professionals }
 >;
 
@@ -22,7 +22,7 @@ export class FindProfessionalsByIdService {
       await this.professionalRepository.findById(professionalId);
 
     if (!professional) {
-      return left(new ProfessionalsNotFound());
+      return left(new ErrorProfessionalsNotFound());
     }
 
     return right({

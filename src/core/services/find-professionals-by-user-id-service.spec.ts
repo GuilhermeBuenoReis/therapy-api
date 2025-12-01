@@ -4,8 +4,8 @@ import { InMemoryUserRepository } from '../../../test/repositories/in-memory-use
 import { Professionals } from '../entities/professionals';
 import { User } from '../entities/user';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { ProfessionalsNotFound } from './errors/professionals-not-found';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorProfessionalsNotFound } from './errors/professionals-not-found';
+import { ErrorUserNotFound } from './errors/user-not-found';
 import { FindProfessionalsByUserIdService } from './find-professionals-by-user-id-service';
 
 let sut: FindProfessionalsByUserIdService;
@@ -70,7 +70,7 @@ describe('Find Professionals By User Id Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(UserNotFound);
+      expect(result.value).toBeInstanceOf(ErrorUserNotFound);
     }
   });
 
@@ -89,7 +89,7 @@ describe('Find Professionals By User Id Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(ProfessionalsNotFound);
+      expect(result.value).toBeInstanceOf(ErrorProfessionalsNotFound);
     }
   });
 });

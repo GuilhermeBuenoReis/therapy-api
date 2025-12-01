@@ -1,12 +1,12 @@
 import type { ProfessionalsRepository } from '../repositories/professionals-repository';
 import { type Either, left, right } from '../utils/either';
-import { ProfessionalsNotFound } from './errors/professionals-not-found';
+import { ErrorProfessionalsNotFound } from './errors/professionals-not-found';
 
 interface DeleteProfessionalsServiceRequest {
   professionalsId: string;
 }
 
-type DeleteProfessionalsServiceResponse = Either<ProfessionalsNotFound, {}>;
+type DeleteProfessionalsServiceResponse = Either<ErrorProfessionalsNotFound, {}>;
 
 export class DeleteProfessionalsService {
   constructor(private professionalsRepository: ProfessionalsRepository) {}
@@ -18,7 +18,7 @@ export class DeleteProfessionalsService {
       await this.professionalsRepository.findById(professionalsId);
 
     if (!professionals) {
-      return left(new ProfessionalsNotFound());
+      return left(new ErrorProfessionalsNotFound());
     }
 
     await this.professionalsRepository.delete(professionals);

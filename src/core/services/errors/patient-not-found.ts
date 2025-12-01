@@ -1,6 +1,6 @@
-export class PatientNotFound extends Error {
+export class ErrorPatientNotFound extends Error {
   constructor() {
     super('Patient not found.');
-    this.name = 'PatientNotFound';
+    this.name = 'ErrorPatientNotFound';
   }
 }

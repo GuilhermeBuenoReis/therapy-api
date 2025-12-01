@@ -2,7 +2,7 @@ import { User } from '../entities/user';
 import type { UserRepository } from '../repositories/user-repository';
 import { type Either, left, right } from '../utils/either';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { UserAlreadyExist } from './errors/user-already-exist';
+import { ErrorUserAlreadyExists } from './errors/user-already-exist';
 
 export interface CreateUserServiceRequest {
   name: string;
@@ -10,7 +10,7 @@ export interface CreateUserServiceRequest {
   password: string;
 }
 
-type CreateUserServiceResponse = Either<UserAlreadyExist, { user: User }>;
+type CreateUserServiceResponse = Either<ErrorUserAlreadyExists, { user: User }>;
 
 export class CreateUserService {
   constructor(private userRepository: UserRepository) {}
@@ -23,7 +23,7 @@ export class CreateUserService {
     const userAlreadyExist = await this.userRepository.findByEmail(email);
 
     if (userAlreadyExist) {
-      return left(new UserAlreadyExist());
+      return left(new ErrorUserAlreadyExists());
     }
 
     const user = User.create(

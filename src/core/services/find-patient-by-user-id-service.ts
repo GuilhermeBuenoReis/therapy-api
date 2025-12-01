@@ -2,15 +2,15 @@ import type { Patient } from '../entities/patient';
 import type { PatientRepository } from '../repositories/patient-repository';
 import type { UserRepository } from '../repositories/user-repository';
 import { type Either, left, right } from '../utils/either';
-import { PatientNotFound } from './errors/patient-not-found';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorPatientNotFound } from './errors/patient-not-found';
+import { ErrorUserNotFound } from './errors/user-not-found';
 
 export interface FindPatientByUserIdServiceRequest {
   userId: string;
 }
 
 type FindPatientByUserIdServiceResponse = Either<
-  PatientNotFound | UserNotFound,
+  ErrorPatientNotFound | ErrorUserNotFound,
   { patient: Patient }
 >;
 
@@ -26,13 +26,13 @@ export class FindPatientByUserIdService {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      return left(new UserNotFound());
+      return left(new ErrorUserNotFound());
     }
 
     const patient = await this.patientRepository.findByUserId(userId);
 
     if (!patient) {
-      return left(new PatientNotFound());
+      return left(new ErrorPatientNotFound());
     }
 
     return right({

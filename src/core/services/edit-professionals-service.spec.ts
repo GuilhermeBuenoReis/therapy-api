@@ -3,7 +3,7 @@ import { InMemoryProfessionalsRepository } from '../../../test/repositories/in-m
 import { Professionals } from '../entities/professionals';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { EditProfessionalsService } from './edit-professionals-service';
-import { ProfessionalsNotFound } from './errors/professionals-not-found';
+import { ErrorProfessionalsNotFound } from './errors/professionals-not-found';
 
 let sut: EditProfessionalsService;
 let inMemoryProfessionalsRepository: InMemoryProfessionalsRepository;
@@ -72,7 +72,7 @@ describe('Edit Professionals Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(ProfessionalsNotFound);
+      expect(result.value).toBeInstanceOf(ErrorProfessionalsNotFound);
     }
   });
 });

@@ -6,8 +6,8 @@ import { Professionals } from '../entities/professionals';
 import { User } from '../entities/user';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { CreatePatientService } from './create-patient-service';
-import { PatientNotLinkedToAProfessional } from './errors/patient-not-linked-to-a-professional';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorPatientNotLinkedToProfessional } from './errors/patient-not-linked-to-a-professional';
+import { ErrorUserNotFound } from './errors/user-not-found';
 
 let sut: CreatePatientService;
 let inMemoryPatientRepository: InMemoryPatientRepository;
@@ -86,7 +86,7 @@ describe('Create Patient Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(UserNotFound);
+      expect(result.value).toBeInstanceOf(ErrorUserNotFound);
     }
     expect(inMemoryPatientRepository.items).toHaveLength(0);
   });
@@ -114,7 +114,9 @@ describe('Create Patient Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(PatientNotLinkedToAProfessional);
+      expect(result.value).toBeInstanceOf(
+        ErrorPatientNotLinkedToProfessional
+      );
     }
     expect(inMemoryPatientRepository.items).toHaveLength(0);
   });

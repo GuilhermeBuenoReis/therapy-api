@@ -4,8 +4,8 @@ import { InMemoryUserRepository } from '../../../test/repositories/in-memory-use
 import { Patient } from '../entities/patient';
 import { User } from '../entities/user';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { PatientNotFound } from './errors/patient-not-found';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorPatientNotFound } from './errors/patient-not-found';
+import { ErrorUserNotFound } from './errors/user-not-found';
 import { FindPatientByUserIdService } from './find-patient-by-user-id-service';
 
 let sut: FindPatientByUserIdService;
@@ -67,7 +67,7 @@ describe('Find Patient By User Id Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(UserNotFound);
+      expect(result.value).toBeInstanceOf(ErrorUserNotFound);
     }
   });
 
@@ -89,7 +89,7 @@ describe('Find Patient By User Id Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(PatientNotFound);
+      expect(result.value).toBeInstanceOf(ErrorPatientNotFound);
     }
   });
 });

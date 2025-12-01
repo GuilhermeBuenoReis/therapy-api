@@ -3,7 +3,7 @@ import { InMemoryPatientRepository } from '../../../test/repositories/in-memory-
 import { Patient } from '../entities/patient';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { DeletePatientService } from './delete-patient-service';
-import { PatientNotFound } from './errors/patient-not-found';
+import { ErrorPatientNotFound } from './errors/patient-not-found';
 
 let sut: DeletePatientService;
 let inMemoryPatientRepository: InMemoryPatientRepository;
@@ -46,7 +46,7 @@ describe('Delete Patient Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(PatientNotFound);
+      expect(result.value).toBeInstanceOf(ErrorPatientNotFound);
     }
   });
 });

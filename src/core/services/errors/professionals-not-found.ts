@@ -1,6 +1,6 @@
-export class ProfessionalsNotFound extends Error {
+export class ErrorProfessionalsNotFound extends Error {
   constructor() {
-    super('Professionals not found');
-    this.name = 'ProfessionalsNotFound';
+    super('Professionals not found.');
+    this.name = 'ErrorProfessionalsNotFound';
   }
 }

@@ -1,13 +1,13 @@
 import type { User } from '../entities/user';
 import type { UserRepository } from '../repositories/user-repository';
 import { type Either, left, right } from '../utils/either';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorUserNotFound } from './errors/user-not-found';
 
 export interface FindUserByEmailServiceRequest {
   email: string;
 }
 
-type FindUserByEmailServiceResponse = Either<UserNotFound, { user: User }>;
+type FindUserByEmailServiceResponse = Either<ErrorUserNotFound, { user: User }>;
 
 export class FindUserByEmailService {
   constructor(private userRepository: UserRepository) {}
@@ -18,7 +18,7 @@ export class FindUserByEmailService {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      return left(new UserNotFound());
+      return left(new ErrorUserNotFound());
     }
 
     return right({

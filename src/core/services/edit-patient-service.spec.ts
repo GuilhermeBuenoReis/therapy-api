@@ -3,7 +3,7 @@ import { InMemoryPatientRepository } from '../../../test/repositories/in-memory-
 import { Patient } from '../entities/patient';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { EditPatientService } from './edit-patient-service';
-import { PatientNotFound } from './errors/patient-not-found';
+import { ErrorPatientNotFound } from './errors/patient-not-found';
 
 let sut: EditPatientService;
 let inMemoryPatientRepository: InMemoryPatientRepository;
@@ -62,7 +62,7 @@ describe('Edit Patient Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(PatientNotFound);
+      expect(result.value).toBeInstanceOf(ErrorPatientNotFound);
     }
   });
 });

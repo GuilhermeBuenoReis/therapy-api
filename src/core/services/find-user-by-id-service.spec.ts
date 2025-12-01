@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryUserRepository } from '../../../test/repositories/in-memory-user-repository';
 import { User } from '../entities/user';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorUserNotFound } from './errors/user-not-found';
 import { FindUserByIdService } from './find-user-by-id-service';
 
 let sut: FindUserByIdService;
@@ -47,7 +47,7 @@ describe('Find User By Id Service', () => {
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(UserNotFound);
+      expect(result.value).toBeInstanceOf(ErrorUserNotFound);
     }
   });
 });

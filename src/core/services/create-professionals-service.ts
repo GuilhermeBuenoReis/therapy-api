@@ -3,7 +3,7 @@ import type { ProfessionalsRepository } from '../repositories/professionals-repo
 import type { UserRepository } from '../repositories/user-repository';
 import { type Either, left, right } from '../utils/either';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorUserNotFound } from './errors/user-not-found';
 
 export interface CreateProfessionalsServiceRequest {
   userId: string;
@@ -17,7 +17,7 @@ export interface CreateProfessionalsServiceRequest {
 }
 
 type CreateProfessionalsServiceResponse = Either<
-  UserNotFound,
+  ErrorUserNotFound,
   { professionals: Professionals }
 >;
 
@@ -40,7 +40,7 @@ export class CreateProfessionalsService {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      return left(new UserNotFound());
+      return left(new ErrorUserNotFound());
     }
 
     const professionals = Professionals.create(

@@ -4,8 +4,8 @@ import type { ProfessionalsRepository } from '../repositories/professionals-repo
 import type { UserRepository } from '../repositories/user-repository';
 import { type Either, left, right } from '../utils/either';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { PatientNotLinkedToAProfessional } from './errors/patient-not-linked-to-a-professional';
-import { UserNotFound } from './errors/user-not-found';
+import { ErrorPatientNotLinkedToProfessional } from './errors/patient-not-linked-to-a-professional';
+import { ErrorUserNotFound } from './errors/user-not-found';
 
 export interface CreatePatientServiceRequest {
   userId: string;
@@ -17,7 +17,7 @@ export interface CreatePatientServiceRequest {
 }
 
 type CreatePatientServiceResponse = Either<
-  PatientNotLinkedToAProfessional | UserNotFound,
+  ErrorPatientNotLinkedToProfessional | ErrorUserNotFound,
   { patient: Patient }
 >;
 
@@ -41,11 +41,11 @@ export class CreatePatientService {
       await this.professionalsRepository.findById(patientId);
 
     if (!user) {
-      return left(new UserNotFound());
+      return left(new ErrorUserNotFound());
     }
 
     if (!professionals) {
-      return left(new PatientNotLinkedToAProfessional(patientId));
+      return left(new ErrorPatientNotLinkedToProfessional(patientId));
     }
 
     const patient = Patient.create(

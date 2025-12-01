@@ -1,6 +1,6 @@
-export class UserNotFound extends Error {
+export class ErrorUserNotFound extends Error {
   constructor() {
     super('User not found with this email.');
-    this.name = 'UserNotFound';
+    this.name = 'ErrorUserNotFound';
   }
 }
