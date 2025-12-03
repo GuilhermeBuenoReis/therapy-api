@@ -39,6 +39,12 @@ export class InMemoryPatientRepository implements PatientRepository {
     this.items.push(patient);
   }
 
+  async findManyByProfessional(professionalId: string): Promise<Patient[]> {
+    return this.items.filter(
+      patient => patient.professionalsId === professionalId
+    );
+  }
+
   async save(patient: Patient): Promise<void> {
     const itemIndex = this.items.findIndex(item => item.id === patient.id);
 

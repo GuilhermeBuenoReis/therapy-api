@@ -4,6 +4,7 @@ import { type Either, left, right } from '../utils/either';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { ErrorSessionByPatientAlreadyExists } from './errors/session-by-patient-already-exist-error';
 import { ErrorSessionByProfessionalAlreadyExists } from './errors/session-by-professional-already-exist-error';
+import { ErrorSessionConflict } from './errors/error-session-conflict';
 
 export interface CreateSessionServiceRequest {
   patientId: string;
@@ -16,6 +17,7 @@ export interface CreateSessionServiceRequest {
 }
 
 type CreateSessionServiceResponse = Either<
+  | ErrorSessionConflict
   | ErrorSessionByPatientAlreadyExists
   | ErrorSessionByProfessionalAlreadyExists,
   { session: Session }
@@ -33,18 +35,28 @@ export class CreateSessionService {
     status,
     durationMinutes,
   }: CreateSessionServiceRequest): Promise<CreateSessionServiceResponse> {
-    const sessionByPatient =
-      await this.sessionRepository.findByPatientId(patientId);
+    const existingPatient = await this.sessionRepository.findByPatientId(
+      patientId
+    );
 
-    const sessionByProfessional =
-      await this.sessionRepository.findByProfessionalId(professionalId);
-
-    if (sessionByPatient) {
+    if (existingPatient) {
       return left(new ErrorSessionByPatientAlreadyExists());
     }
 
-    if (sessionByProfessional) {
+    const existingProfessional =
+      await this.sessionRepository.findByProfessionalId(professionalId);
+
+    if (existingProfessional) {
       return left(new ErrorSessionByProfessionalAlreadyExists());
+    }
+
+    const timeConflict = await this.sessionRepository.findByProfessionalAndDate(
+      professionalId,
+      sessionDate
+    );
+
+    if (timeConflict) {
+      return left(new ErrorSessionConflict());
     }
 
     const session = Session.create(
@@ -62,8 +74,6 @@ export class CreateSessionService {
 
     await this.sessionRepository.create(session);
 
-    return right({
-      session,
-    });
+    return right({ session });
   }
 }
