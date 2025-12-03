@@ -1,31 +1,30 @@
-import type { Patient } from '../entities/patient';
 import type { PatientRepository } from '../repositories/patient-repository';
 import { type Either, left, right } from '../utils/either';
-import { ErrorPatientNotFound } from './errors/patient-not-found';
+import type { ErrorPatientNotFound } from './errors/patient-not-found';
 import type { ErrorPatientNotLinkedToProfessional } from './errors/patient-not-linked-to-a-professional';
 import type { VerifyProfessionalHasAccessToPatient } from './rules/verify-professional-has-access-to-patient';
 
-export interface FindPatientByProfessionalIdServiceRequest {
+interface GetPatientMedicalRecordServiceRequest {
   patientId: string;
   professionalId: string;
 }
 
-type FindPatientByProfessionalIdServiceResponse = Either<
+type GetPatientMedicalRecordServiceResponse = Either<
   ErrorPatientNotFound | ErrorPatientNotLinkedToProfessional,
-  { patient: Patient }
+  { notes: string }
 >;
 
-export class FindPatientByProfessionalIdService {
+export class GetPatientMedicalRecordService {
   constructor(
     private patientRepository: PatientRepository,
-    private verifyAccess: VerifyProfessionalHasAccessToPatient
+    private verifier: VerifyProfessionalHasAccessToPatient
   ) {}
 
   async handle({
     patientId,
     professionalId,
-  }: FindPatientByProfessionalIdServiceRequest): Promise<FindPatientByProfessionalIdServiceResponse> {
-    const access = await this.verifyAccess.execute({
+  }: GetPatientMedicalRecordServiceRequest): Promise<GetPatientMedicalRecordServiceResponse> {
+    const access = await this.verifier.execute({
       patientId,
       professionalId,
     });
@@ -36,10 +35,10 @@ export class FindPatientByProfessionalIdService {
 
     const patient = await this.patientRepository.findById(patientId);
 
-    if (!patient) {
-      return left(new ErrorPatientNotFound());
-    }
+    const notes = patient?.note ?? '';
 
-    return right({ patient });
+    return right({
+      notes,
+    });
   }
 }

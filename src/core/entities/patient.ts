@@ -71,6 +71,10 @@ export class Patient extends Entity<PatientProps> {
     this.touch();
   }
 
+  set professionalsId(professionalsId: string) {
+    this.props.professionalsId = professionalsId;
+  }
+
   static create(
     props: Optional<PatientProps, 'createdAt'>,
     id?: UniqueEntityID

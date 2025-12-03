@@ -1,42 +1,31 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { makePatient } from '../../../test/factories/make-patient';
 import { InMemoryPatientRepository } from '../../../test/repositories/in-memory-patient-repository';
-import { Patient } from '../entities/patient';
-import { UniqueEntityID } from '../utils/unique-entity-id';
 import { ErrorPatientNotFound } from './errors/patient-not-found';
 import { ErrorPatientNotLinkedToProfessional } from './errors/patient-not-linked-to-a-professional';
-import { FindPatientByProfessionalIdService } from './find-patient-by-professional-id-service';
+import { GetPatientMedicalRecordService } from './get-patient-medical-record-service';
 import { VerifyProfessionalHasAccessToPatient } from './rules/verify-professional-has-access-to-patient';
 
-let sut: FindPatientByProfessionalIdService;
+let sut: GetPatientMedicalRecordService;
 let inMemoryPatientRepository: InMemoryPatientRepository;
 
-describe('Find Patient By Professional Id Service', () => {
+describe('Get Patient Medical Record Service', () => {
   beforeEach(() => {
     inMemoryPatientRepository = new InMemoryPatientRepository();
-
     const verifier = new VerifyProfessionalHasAccessToPatient(
       inMemoryPatientRepository
     );
-
-    sut = new FindPatientByProfessionalIdService(
+    sut = new GetPatientMedicalRecordService(
       inMemoryPatientRepository,
       verifier
     );
   });
 
-  it('should be able to find a patient by professional id', async () => {
-    const patient = Patient.create(
-      {
-        userId: 'user-01',
-        professionalsId: 'professional-01',
-        name: 'Patient Name',
-        birthDate: '1990-01-01',
-        phone: '123456789',
-        note: 'note',
-      },
-      new UniqueEntityID('patient-01')
-    );
-
+  it('should return patient notes when access is allowed', async () => {
+    const patient = makePatient({
+      professionalsId: 'professional-01',
+      note: 'Patient medical notes',
+    });
     await inMemoryPatientRepository.create(patient);
 
     const result = await sut.handle({
@@ -46,15 +35,14 @@ describe('Find Patient By Professional Id Service', () => {
 
     expect(result.isRight()).toBe(true);
     if (result.isRight()) {
-      expect(result.value.patient.id.toString()).toEqual('patient-01');
-      expect(result.value.patient.professionalsId).toEqual('professional-01');
+      expect(result.value.notes).toBe('Patient medical notes');
     }
   });
 
-  it('should return left when patient not found for professional id', async () => {
+  it('should return error when patient does not exist', async () => {
     const result = await sut.handle({
       patientId: 'missing-patient',
-      professionalId: 'missing-professional',
+      professionalId: 'professional-01',
     });
 
     expect(result.isLeft()).toBe(true);
@@ -63,19 +51,8 @@ describe('Find Patient By Professional Id Service', () => {
     }
   });
 
-  it('should return error when patient not linked to professional', async () => {
-    const patient = Patient.create(
-      {
-        userId: 'user-01',
-        professionalsId: 'another-professional',
-        name: 'Patient Name',
-        birthDate: '1990-01-01',
-        phone: '123456789',
-        note: 'note',
-      },
-      new UniqueEntityID('patient-01')
-    );
-
+  it('should return error when professional does not own the patient', async () => {
+    const patient = makePatient({ professionalsId: 'other-professional' });
     await inMemoryPatientRepository.create(patient);
 
     const result = await sut.handle({

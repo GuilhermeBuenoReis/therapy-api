@@ -1,10 +1,13 @@
 import { Session, type SessionStatus } from '../entities/session';
+import type { PatientRepository } from '../repositories/patient-repository';
 import type { SessionRepository } from '../repositories/session-repository';
 import { type Either, left, right } from '../utils/either';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { ErrorSessionByPatientAlreadyExists } from './errors/session-by-patient-already-exist-error';
-import { ErrorSessionByProfessionalAlreadyExists } from './errors/session-by-professional-already-exist-error';
 import { ErrorSessionConflict } from './errors/error-session-conflict';
+import { ErrorPatientNotFound } from './errors/patient-not-found';
+import { ErrorPatientNotLinkedToProfessional } from './errors/patient-not-linked-to-a-professional';
+import type { ErrorSessionByPatientAlreadyExists } from './errors/session-by-patient-already-exist-error';
+import type { ErrorSessionByProfessionalAlreadyExists } from './errors/session-by-professional-already-exist-error';
 
 export interface CreateSessionServiceRequest {
   patientId: string;
@@ -19,12 +22,17 @@ export interface CreateSessionServiceRequest {
 type CreateSessionServiceResponse = Either<
   | ErrorSessionConflict
   | ErrorSessionByPatientAlreadyExists
-  | ErrorSessionByProfessionalAlreadyExists,
+  | ErrorSessionByProfessionalAlreadyExists
+  | ErrorPatientNotFound
+  | ErrorPatientNotLinkedToProfessional,
   { session: Session }
 >;
 
 export class CreateSessionService {
-  constructor(private sessionRepository: SessionRepository) {}
+  constructor(
+    private sessionRepository: SessionRepository,
+    private patientRepository: PatientRepository
+  ) {}
 
   async handle({
     patientId,
@@ -35,27 +43,30 @@ export class CreateSessionService {
     status,
     durationMinutes,
   }: CreateSessionServiceRequest): Promise<CreateSessionServiceResponse> {
-    const existingPatient = await this.sessionRepository.findByPatientId(
-      patientId
-    );
+    const patient = await this.patientRepository.findById(patientId);
 
-    if (existingPatient) {
-      return left(new ErrorSessionByPatientAlreadyExists());
+    if (!patient) {
+      return left(new ErrorPatientNotFound());
     }
 
-    const existingProfessional =
-      await this.sessionRepository.findByProfessionalId(professionalId);
-
-    if (existingProfessional) {
-      return left(new ErrorSessionByProfessionalAlreadyExists());
+    if (patient.professionalsId !== professionalId) {
+      return left(new ErrorPatientNotLinkedToProfessional(professionalId));
     }
 
-    const timeConflict = await this.sessionRepository.findByProfessionalAndDate(
-      professionalId,
-      sessionDate
-    );
+    const professionalTimeConflict =
+      await this.sessionRepository.findByProfessionalAndDate(
+        professionalId,
+        sessionDate
+      );
 
-    if (timeConflict) {
+    if (professionalTimeConflict) {
+      return left(new ErrorSessionConflict());
+    }
+
+    const patientTimeConflict =
+      await this.sessionRepository.findByPatientAndDate(patientId, sessionDate);
+
+    if (patientTimeConflict) {
       return left(new ErrorSessionConflict());
     }
 

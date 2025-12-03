@@ -3,9 +3,10 @@ import { Entity } from '../utils/entity';
 import type { UniqueEntityID } from '../utils/unique-entity-id';
 
 export enum SessionStatus {
-  scheduled,
-  done,
-  canceled,
+  scheduled = 'scheduled',
+  inProgress = 'in-progress',
+  completed = 'completed',
+  canceled = 'canceled',
 }
 
 type SessionProps = {
@@ -77,8 +78,8 @@ export class Session extends Entity<SessionProps> {
     this.touch();
   }
 
-  set status(status: SessionStatus) {
-    this.props.status = status;
+  setStatus(newStatus: SessionStatus) {
+    this.props.status = newStatus;
     this.touch();
   }
 
