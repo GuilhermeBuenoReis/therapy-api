@@ -11,6 +11,11 @@ export interface SessionRepository {
     patientId: string,
     sessionDate: Date
   ): Promise<Session | null>;
+  findManyByProfessionalAndMonth(
+    professionalId: string,
+    month: number,
+    year: number
+  ): Promise<Session[]>;
   findManyByProfessionalId(professionalId: string): Promise<Session[]>;
   findById(id: string): Promise<Session | null>;
   create(session: Session): Promise<void>;

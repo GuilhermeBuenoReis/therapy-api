@@ -13,7 +13,6 @@
 * [x] RN11 – Prontuário deve conter informações clínicas essenciais
 * [x] RN12 – Prontuário não pode ser apagado
 * [x] RN13 – Profissional só vê prontuário de seus pacientes
-* [ ] RN14 – Paciente não vê prontuário
 
 * [x] RN15 – Valor da sessão deve ser salvo na criação
 * [x] RN16 – Pagamento deve registrar valor e data

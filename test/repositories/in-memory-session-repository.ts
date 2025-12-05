@@ -60,6 +60,19 @@ export class InMemorySessionRepository implements SessionRepository {
     return this.items.filter(item => item.professionalId === professionalId);
   }
 
+  async findManyByProfessionalAndMonth(
+    professionalId: string,
+    month: number,
+    year: number
+  ): Promise<Session[]> {
+    return this.items.filter(
+      session =>
+        session.professionalId === professionalId &&
+        session.sessionDate.getUTCMonth() + 1 === month &&
+        session.sessionDate.getUTCFullYear() === year
+    );
+  }
+
   async findById(id: string): Promise<Session | null> {
     const session = this.items.find(item => item.id.toString() === id);
 
