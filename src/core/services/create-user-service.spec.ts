@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryUserRepository } from '../../../test/repositories/in-memory-user-repository';
-import { User } from '../entities/user';
+import { User, UserRole } from '../entities/user';
 import { CreateUserService } from './create-user-service';
 import { ErrorUserAlreadyExists } from './errors/user-already-exist';
 
@@ -19,6 +19,7 @@ describe('Create User Service', () => {
       name: 'John Doe',
       email: 'jhondoe@gmail.com',
       password: '123456',
+      role: UserRole.Professional
     });
 
     expect(result.isRight()).toBe(true);
@@ -30,6 +31,7 @@ describe('Create User Service', () => {
       name: 'John Doe',
       email: 'jhondoe@gmail.com',
       password: '123456',
+      role: UserRole.Professional
     });
 
     await inMemoryUserRepository.create(user);
@@ -38,6 +40,7 @@ describe('Create User Service', () => {
       name: 'John Doe',
       email: 'jhondoe@gmail.com',
       password: '123456',
+      role: UserRole.Professional
     });
 
     expect(result.isLeft()).toBe(true);

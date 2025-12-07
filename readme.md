@@ -17,23 +17,15 @@
 * [x] RN15 – Valor da sessão deve ser salvo na criação
 * [x] RN16 – Pagamento deve registrar valor e data
 * [x] RN17 – Pagamento não pode ser editado ou deletado
-* [ ] RN18 – Relatório mensal de receitas por profissional
+* [x] RN18 – Relatório mensal de receitas por profissional
 
-* [ ] RN19 – Dados mínimos obrigatórios do profissional
-* [ ] RN20 – Profissional só edita os próprios dados
+* [x] RN19 – Dados mínimos obrigatórios do profissional
+* [x] RN20 – Profissional só edita os próprios dados
 
-* [ ] RN21 – User pode ser profissional ou não (futuro)
+* [x] RN21 – User pode ser profissional ou não (futuro)
 * [ ] RN22 – Dashboard somente autenticado
-* [ ] RN23 – Paciente não acessa nada
+* [x] RN23 – Paciente não acessa nada
 
 * [ ] RN24 – SaaS usa assinatura mensal
 * [ ] RN25 – Assinatura expirada → modo leitura por 7 dias
 * [ ] RN26 – Após 7 dias → bloqueio
-
-
-✔ get-patient-medical-record-service.ts
-✔ get-sessions-by-professional-service.ts (se quiser filtrar por paciente também)
-✔ find-session-by-patient-service.ts
-✔ find-payments-by-patient-id-service.ts
-✔ find-latest-payment-for-patient-service.ts
-✔ find-patient-by-professional-id-service.ts

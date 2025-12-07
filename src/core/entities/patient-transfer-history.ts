@@ -12,7 +12,7 @@ export class PatientTransferHistory {
   private constructor(
     private props: PatientTransferHistoryProps,
     private _id?: UniqueEntityID
-  ) {}
+  ) { }
 
   get id() {
     return this._id;
