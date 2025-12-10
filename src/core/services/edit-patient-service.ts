@@ -1,9 +1,11 @@
 import type { Patient } from '../entities/patient';
 import type { PatientRepository } from '../repositories/patient-repository';
 import { type Either, left, right } from '../utils/either';
+import type { SubscriptionAccessMiddleware } from './rules/check-subscription-status-middleware';
 import { ErrorPatientNotFound } from './errors/patient-not-found';
 
 interface EditPatientServiceRequest {
+  professionalId: string;
   patientId: string;
   name: string;
   birthDate: string;
@@ -19,9 +21,13 @@ type EditPatientServiceResponse = Either<
 >;
 
 export class EditPatientService {
-  constructor(private patientRepository: PatientRepository) {}
+  constructor(
+    private patientRepository: PatientRepository,
+    private subscriptionMiddleware: SubscriptionAccessMiddleware
+  ) { }
 
   async handle({
+    professionalId,
     patientId,
     birthDate,
     name,
@@ -32,6 +38,15 @@ export class EditPatientService {
 
     if (!patient) {
       return left(new ErrorPatientNotFound());
+    }
+
+    const subscriptionCheck = await this.subscriptionMiddleware.enforceAccess({
+      professionalId,
+      operation: 'write',
+    });
+
+    if (subscriptionCheck.isLeft()) {
+      return left(subscriptionCheck.value);
     }
 
     patient.name = name;

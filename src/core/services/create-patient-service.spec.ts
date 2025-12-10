@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryPatientRepository } from '../../../test/repositories/in-memory-patient-repository';
 import { InMemoryProfessionalsRepository } from '../../../test/repositories/in-memory-professionals-repository';
 import { InMemoryUserRepository } from '../../../test/repositories/in-memory-user-repository';
+import { FakeCheckSubscriptionStatusMiddleware } from '../../../test/factories/fake-check-subscription-status-middleware';
 import { Professionals } from '../entities/professionals';
 import { User } from '../entities/user';
 import { UniqueEntityID } from '../utils/unique-entity-id';
@@ -13,6 +14,7 @@ let sut: CreatePatientService;
 let inMemoryPatientRepository: InMemoryPatientRepository;
 let inMemoryProfessionalsRepository: InMemoryProfessionalsRepository;
 let inMemoryUserRepository: InMemoryUserRepository;
+let subscriptionMiddleware: FakeCheckSubscriptionStatusMiddleware;
 
 describe('Create Patient Service', () => {
   beforeEach(() => {
@@ -20,10 +22,13 @@ describe('Create Patient Service', () => {
     inMemoryProfessionalsRepository = new InMemoryProfessionalsRepository();
     inMemoryUserRepository = new InMemoryUserRepository();
 
+    subscriptionMiddleware = new FakeCheckSubscriptionStatusMiddleware();
+
     sut = new CreatePatientService(
       inMemoryPatientRepository,
       inMemoryUserRepository,
-      inMemoryProfessionalsRepository
+      inMemoryProfessionalsRepository,
+      subscriptionMiddleware
     );
   });
 

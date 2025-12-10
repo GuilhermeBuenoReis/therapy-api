@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryPatientRepository } from '../../../test/repositories/in-memory-patient-repository';
+import { FakeCheckSubscriptionStatusMiddleware } from '../../../test/factories/fake-check-subscription-status-middleware';
 import { Patient } from '../entities/patient';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { EditPatientService } from './edit-patient-service';
@@ -7,12 +8,17 @@ import { ErrorPatientNotFound } from './errors/patient-not-found';
 
 let sut: EditPatientService;
 let inMemoryPatientRepository: InMemoryPatientRepository;
+let subscriptionMiddleware: FakeCheckSubscriptionStatusMiddleware;
 
 describe('Edit Patient Service', () => {
   beforeEach(() => {
     inMemoryPatientRepository = new InMemoryPatientRepository();
+    subscriptionMiddleware = new FakeCheckSubscriptionStatusMiddleware();
 
-    sut = new EditPatientService(inMemoryPatientRepository);
+    sut = new EditPatientService(
+      inMemoryPatientRepository,
+      subscriptionMiddleware
+    );
   });
 
   it('should be able to edit a patient', async () => {
@@ -32,6 +38,7 @@ describe('Edit Patient Service', () => {
     await inMemoryPatientRepository.create(patient);
 
     const result = await sut.handle({
+      professionalId: 'professional-01',
       patientId: patientId.toString(),
       name: 'New Name',
       birthDate: '1991-02-02',
@@ -53,6 +60,7 @@ describe('Edit Patient Service', () => {
 
   it('should return left when patient does not exist', async () => {
     const result = await sut.handle({
+      professionalId: 'professional-01',
       patientId: 'missing-id',
       name: 'Name',
       birthDate: '1991-02-02',

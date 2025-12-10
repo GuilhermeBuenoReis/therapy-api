@@ -1,36 +1,46 @@
-* [x] RN01 – Paciente só pode ser criado por profissional existente
-* [x] RN02 – Paciente só pode ser atendido pelo profissional ao qual está vinculado
-* [x] RN03 – Profissional só vê seus próprios pacientes
-* [x] RN04 – Transferência de paciente deve manter histórico
+# Business Rules (Checklist in English)
 
-* [x] RN05 – Sessão só pode existir se paciente pertence ao profissional
-* [x] RN06 – Impedir conflitos de horário (profissional e paciente)
-* [x] RN07 – Status só pode mudar seguindo regras cronológicas
-* [x] RN08 – Sessão cancelada não vira completed
-* [x] RN09 – Sessão completed não pode alterar status ou dados cronológicos, mas permite edição de price, notes e durationMinutes.
+## Patient Rules
+* [x] RN01 – It should be able to create a patient only if the professional exists.
+* [x] RN02 – It should not be able for a patient to be attended by a professional they are not linked to.
+* [x] RN03 – It should not be able for a professional to see patients that do not belong to them.
+* [x] RN04 – It should be able to transfer a patient while keeping the full historical record.
 
-* [x] RN10 – Sessão completed gera registro de prontuário
-* [x] RN11 – Prontuário deve conter informações clínicas essenciais
-* [x] RN12 – Prontuário não pode ser apagado
-* [x] RN13 – Profissional só vê prontuário de seus pacientes
+## Session Rules
+* [x] RN05 – It should be able to create a session only if the patient belongs to the professional.
+* [x] RN06 – It should not be able to schedule sessions that create time conflicts for the professional or the patient.
+* [x] RN07 – It should not be able to change the session status unless the chronological rules are respected.
+* [x] RN08 – It should not be able for a cancelled session to become completed.
+* [x] RN09 – It should not be able to modify chronological data or status of a completed session, but it should be able to edit price, notes, and durationMinutes.
 
-* [x] RN15 – Valor da sessão deve ser salvo na criação
-* [x] RN16 – Pagamento deve registrar valor e data
-* [x] RN17 – Pagamento não pode ser editado ou deletado
-* [x] RN18 – Relatório mensal de receitas por profissional
+## Medical Record Rules
+* [x] RN10 – It should be able for a completed session to generate a medical record entry.
+* [x] RN11 – It should be able for the medical record to contain essential clinical information.
+* [x] RN12 – It should not be able for a medical record to be deleted.
+* [x] RN13 – It should not be able for a professional to access medical records of patients that do not belong to them.
 
-* [x] RN19 – Dados mínimos obrigatórios do profissional
-* [x] RN20 – Profissional só edita os próprios dados
+## Financial Rules
+* [x] RN15 – It should be able to save the session value at creation time.
+* [x] RN16 – It should be able to register payment value and date.
+* [x] RN17 – It should not be able to edit or delete a payment.
+* [x] RN18 – It should be able to generate a monthly revenue report per professional.
 
-* [x] RN21 – User pode ser profissional ou não (futuro)
-* [x] RN22 – Dashboard somente autenticado
-* [x] RN23 – Paciente não acessa nada
+## Professional Rules
+* [x] RN19 – It should be able to require minimum mandatory data for professionals.
+* [x] RN20 – It should not be able for a professional to edit data of another professional.
 
-* [ ] RN24 – SaaS usa assinatura mensal
-  - [ ] RN24.1 – Criar assinatura (CreateSubscriptionService)
-  - [ ] RN24.2 – Verificar assinatura ativa (CheckSubscriptionStatusService)
-  - [ ] RN24.3 – Renovar assinatura manualmente (RenewSubscriptionService)
-  - [ ] RN24.4 – Assinatura expirada bloqueia ações essenciais
-  - [ ] RN24.5 – Registrar pagamento da assinatura (PaymentLog opcional no MVP)
-* [ ] RN25 – Assinatura expirada → modo leitura por 7 dias
-* [ ] RN26 – Após 7 dias → bloqueio
+## Access Rules
+* [x] RN21 – It should be able for a user to be a professional or not in the future.
+* [x] RN22 – It should not be able to access the dashboard without authentication.
+* [x] RN23 – It should not be able for a patient to access any system resources.
+
+## Subscription / SaaS Rules
+* [ ] RN24 – SaaS uses monthly subscription
+  - [x] RN24.1 – It should be able to create a subscription (CreateSubscriptionService).
+  - [ ] RN24.2 – It should be able to check whether a subscription is active (CheckSubscriptionStatusService).
+  - [ ] RN24.3 – It should be able to manually renew a subscription (RenewSubscriptionService).
+  - [ ] RN24.4 – It should not be able to perform essential actions if the subscription is expired.
+  - [ ] RN24.5 – It should be able to register a subscription payment (optional PaymentLog in MVP).
+
+* [ ] RN25 – It should be able for an expired subscription to enter read-only mode for 7 days.
+* [ ] RN26 – It should not be able to access or perform actions after 7 days of expiration.

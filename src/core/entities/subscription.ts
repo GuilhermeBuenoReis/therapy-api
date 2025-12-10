@@ -10,8 +10,8 @@ export enum SubscriptionStatus {
 }
 
 interface SubscriptionProps {
-  userId: string;
-  price: number; // valor mensal
+  professionalId: string;
+  monthPrice: number;
   status: SubscriptionStatus;
   startDate: Date;
   endDate: Date;
@@ -20,12 +20,12 @@ interface SubscriptionProps {
 }
 
 export class Subscription extends Entity<SubscriptionProps> {
-  get userId() {
-    return this.props.userId;
+  get professionalId() {
+    return this.props.professionalId;
   }
 
   get price() {
-    return this.props.price;
+    return this.props.monthPrice;
   }
 
   get status() {

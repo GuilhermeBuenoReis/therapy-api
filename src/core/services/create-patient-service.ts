@@ -4,6 +4,7 @@ import type { ProfessionalsRepository } from '../repositories/professionals-repo
 import type { UserRepository } from '../repositories/user-repository';
 import { type Either, left, right } from '../utils/either';
 import { UniqueEntityID } from '../utils/unique-entity-id';
+import type { SubscriptionAccessMiddleware } from './rules/check-subscription-status-middleware';
 import { ErrorPatientNotLinkedToProfessional } from './errors/patient-not-linked-to-a-professional';
 import { ErrorUserNotFound } from './errors/user-not-found';
 
@@ -25,8 +26,9 @@ export class CreatePatientService {
   constructor(
     private patientRepository: PatientRepository,
     private userRepository: UserRepository,
-    private professionalsRepository: ProfessionalsRepository
-  ) {}
+    private professionalsRepository: ProfessionalsRepository,
+    private subscriptionMiddleware: SubscriptionAccessMiddleware
+  ) { }
 
   async handle({
     userId,
@@ -46,6 +48,15 @@ export class CreatePatientService {
 
     if (!professionals) {
       return left(new ErrorPatientNotLinkedToProfessional(patientId));
+    }
+
+    const subscriptionCheck = await this.subscriptionMiddleware.enforceAccess({
+      professionalId: professionals.id.toString(),
+      operation: 'write',
+    });
+
+    if (subscriptionCheck.isLeft()) {
+      return left(subscriptionCheck.value);
     }
 
     const patient = Patient.create(

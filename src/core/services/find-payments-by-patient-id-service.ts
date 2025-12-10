@@ -22,7 +22,7 @@ export class FindPaymentsByPatientIdService {
   constructor(
     private paymentRepository: PaymentRepository,
     private verifyAccess: VerifyProfessionalHasAccessToPatient
-  ) {}
+  ) { }
 
   async handle({
     patientId,
