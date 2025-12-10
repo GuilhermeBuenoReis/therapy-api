@@ -23,9 +23,14 @@
 * [x] RN20 – Profissional só edita os próprios dados
 
 * [x] RN21 – User pode ser profissional ou não (futuro)
-* [ ] RN22 – Dashboard somente autenticado
+* [x] RN22 – Dashboard somente autenticado
 * [x] RN23 – Paciente não acessa nada
 
 * [ ] RN24 – SaaS usa assinatura mensal
+  - [ ] RN24.1 – Criar assinatura (CreateSubscriptionService)
+  - [ ] RN24.2 – Verificar assinatura ativa (CheckSubscriptionStatusService)
+  - [ ] RN24.3 – Renovar assinatura manualmente (RenewSubscriptionService)
+  - [ ] RN24.4 – Assinatura expirada bloqueia ações essenciais
+  - [ ] RN24.5 – Registrar pagamento da assinatura (PaymentLog opcional no MVP)
 * [ ] RN25 – Assinatura expirada → modo leitura por 7 dias
 * [ ] RN26 – Após 7 dias → bloqueio

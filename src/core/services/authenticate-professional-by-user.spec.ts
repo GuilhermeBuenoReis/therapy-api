@@ -4,10 +4,10 @@ import { FakeEncrypter } from '../../../test/cryptography/fake-encrypter';
 import { FakeHasher } from '../../../test/cryptography/fake-hasher';
 import { User } from '../entities/user';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { AuthenticateProfessionalUseCase } from './authenticate-professional-by-user';
+import { AuthenticateProfessionalService } from './authenticate-professional-by-user';
 import { WrongCredentialsError } from './errors/wrong-creadentials-error';
 
-let sut: AuthenticateProfessionalUseCase;
+let sut: AuthenticateProfessionalService;
 let inMemoryUserRepository: InMemoryUserRepository;
 let fakeHashComparer: FakeHasher;
 let fakeEncrypter: FakeEncrypter;
@@ -18,7 +18,7 @@ describe('Authenticate Professional By User', () => {
     fakeHashComparer = new FakeHasher();
     fakeEncrypter = new FakeEncrypter();
 
-    sut = new AuthenticateProfessionalUseCase(
+    sut = new AuthenticateProfessionalService(
       inMemoryUserRepository,
       fakeHashComparer,
       fakeEncrypter

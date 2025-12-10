@@ -16,6 +16,21 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "moduleResolution": "node16",
-    "types": ["vitest/globals", "vitest", "node"]
-  }
+    "types": [
+      "vitest/globals"
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "test/*": [
+        "./test/*"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/generated/prisma"
+  ]
 }

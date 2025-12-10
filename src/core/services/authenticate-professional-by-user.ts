@@ -6,19 +6,19 @@ import { left, right, type Either } from '../utils/either';
 import { WrongCredentialsError } from './errors/wrong-creadentials-error';
 
 
-interface AuthenticateProfessionalUseCaseRequest {
+interface AuthenticateProfessionalServiceRequest {
   email: string;
   password: string;
 }
 
-type AuthenticateProfessionalUseCaseResponse = Either<
+type AuthenticateProfessionalServiceResponse = Either<
   WrongCredentialsError,
   {
     accessToken: string;
   }
 >;
 
-export class AuthenticateProfessionalUseCase {
+export class AuthenticateProfessionalService {
   constructor(
     private userRepository: UserRepository,
     private hashCompare: HashComparer,
@@ -28,7 +28,7 @@ export class AuthenticateProfessionalUseCase {
   async execute({
     email,
     password,
-  }: AuthenticateProfessionalUseCaseRequest): Promise<AuthenticateProfessionalUseCaseResponse> {
+  }: AuthenticateProfessionalServiceRequest): Promise<AuthenticateProfessionalServiceResponse> {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {

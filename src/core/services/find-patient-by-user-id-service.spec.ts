@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryPatientRepository } from '../../../test/repositories/in-memory-patient-repository';
 import { InMemoryUserRepository } from '../../../test/repositories/in-memory-user-repository';
 import { Patient } from '../entities/patient';
