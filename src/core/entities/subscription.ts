@@ -28,6 +28,11 @@ export class Subscription extends Entity<SubscriptionProps> {
     return this.props.monthPrice;
   }
 
+  set price(price: number) {
+    this.props.monthPrice = price;
+    this.touch();
+  }
+
   get status() {
     return this.props.status;
   }
@@ -42,6 +47,25 @@ export class Subscription extends Entity<SubscriptionProps> {
 
   set status(status: SubscriptionStatus) {
     this.props.status = status;
+    this.touch();
+  }
+
+  renew({
+    startDate,
+    endDate,
+    monthPrice,
+  }: {
+    startDate: Date;
+    endDate: Date;
+    monthPrice?: number;
+  }) {
+    this.props.startDate = startDate;
+    this.props.endDate = endDate;
+    if (typeof monthPrice === 'number') {
+      this.props.monthPrice = monthPrice;
+    }
+
+    this.props.status = SubscriptionStatus.Active;
     this.touch();
   }
 

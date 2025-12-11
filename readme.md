@@ -35,12 +35,12 @@
 * [x] RN23 – It should not be able for a patient to access any system resources.
 
 ## Subscription / SaaS Rules
-* [ ] RN24 – SaaS uses monthly subscription
+* [x] RN24 – SaaS uses monthly subscription
   - [x] RN24.1 – It should be able to create a subscription (CreateSubscriptionService).
-  - [ ] RN24.2 – It should be able to check whether a subscription is active (CheckSubscriptionStatusService).
-  - [ ] RN24.3 – It should be able to manually renew a subscription (RenewSubscriptionService).
-  - [ ] RN24.4 – It should not be able to perform essential actions if the subscription is expired.
-  - [ ] RN24.5 – It should be able to register a subscription payment (optional PaymentLog in MVP).
+  - [x] RN24.2 – It should be able to check whether a subscription is active (CheckSubscriptionStatusService).
+  - [x] RN24.3 – It should be able to manually renew a subscription (RenewSubscriptionService).
+  - [x] RN24.4 – It should not be able to perform essential actions if the subscription is expired.
+  - [x] RN24.5 – It should be able to register a subscription payment (optional PaymentLog in MVP).
 
-* [ ] RN25 – It should be able for an expired subscription to enter read-only mode for 7 days.
-* [ ] RN26 – It should not be able to access or perform actions after 7 days of expiration.
+* [x] RN25 – It should be able for an expired subscription to enter read-only mode for 7 days.
+* [x] RN26 – It should not be able to access or perform actions after 7 days of expiration.

@@ -79,6 +79,23 @@ describe('Check Subscription Status Middleware', () => {
     }
   });
 
+  it('should allow read operations during grace period', async () => {
+    const subscription = makeSubscription();
+    serviceStub.setResponse(
+      right({
+        subscription,
+        accessLevel: SubscriptionAccessLevel.GraceReadOnly,
+      })
+    );
+
+    const result = await middleware.enforceAccess({
+      professionalId: subscription.professionalId,
+      operation: 'read',
+    });
+
+    expect(result.isRight()).toBe(true);
+  });
+
   it('should block all operations when access level is blocked', async () => {
     const subscription = makeSubscription();
     serviceStub.setResponse(
