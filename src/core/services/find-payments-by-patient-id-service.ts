@@ -1,48 +1,38 @@
 import type { Payment } from '../entities/payment';
 import type { PaymentRepository } from '../repositories/payment-repository';
 import { type Either, left, right } from '../utils/either';
-import { ErrorPaymentsForPatientNotFound } from './errors/error-payments-for-patient-not-found';
-import type { ErrorPatientNotFound } from './errors/patient-not-found';
-import type { ErrorPatientNotLinkedToProfessional } from './errors/patient-not-linked-to-a-professional';
-import type { VerifyProfessionalHasAccessToPatient } from './rules/verify-professional-has-access-to-patient';
+import { ErrorSubscriptionPaymentsNotFound } from './errors/error-payments-for-patient-not-found';
 
-export interface FindPaymentsByPatientIdServiceRequest {
-  patientId: string;
+export interface FindSubscriptionPaymentsByProfessionalServiceRequest {
   professionalId: string;
+  subscriptionId?: string | null;
 }
 
-type FindPaymentsByPatientIdServiceResponse = Either<
-  | ErrorPaymentsForPatientNotFound
-  | ErrorPatientNotFound
-  | ErrorPatientNotLinkedToProfessional,
+type FindSubscriptionPaymentsByProfessionalServiceResponse = Either<
+  ErrorSubscriptionPaymentsNotFound,
   { payments: Payment[] }
 >;
 
-export class FindPaymentsByPatientIdService {
-  constructor(
-    private paymentRepository: PaymentRepository,
-    private verifyAccess: VerifyProfessionalHasAccessToPatient
-  ) { }
+export class FindSubscriptionPaymentsByProfessionalService {
+  constructor(private paymentRepository: PaymentRepository) {}
 
   async handle({
-    patientId,
     professionalId,
-  }: FindPaymentsByPatientIdServiceRequest): Promise<FindPaymentsByPatientIdServiceResponse> {
-    const access = await this.verifyAccess.execute({
-      patientId,
-      professionalId,
-    });
+    subscriptionId,
+  }: FindSubscriptionPaymentsByProfessionalServiceRequest): Promise<FindSubscriptionPaymentsByProfessionalServiceResponse> {
+    const payments = await this.paymentRepository.findByProfessionalId(
+      professionalId
+    );
 
-    if (access.isLeft()) {
-      return left(access.value);
+    const filteredPayments =
+      subscriptionId !== undefined && subscriptionId !== null
+        ? payments.filter(payment => payment.subscriptionId === subscriptionId)
+        : payments;
+
+    if (filteredPayments.length === 0) {
+      return left(new ErrorSubscriptionPaymentsNotFound());
     }
 
-    const payments = await this.paymentRepository.findByPatientId(patientId);
-
-    if (payments.length === 0) {
-      return left(new ErrorPaymentsForPatientNotFound());
-    }
-
-    return right({ payments });
+    return right({ payments: filteredPayments });
   }
 }

@@ -3,22 +3,21 @@ import { Entity } from '../utils/entity';
 import type { UniqueEntityID } from '../utils/unique-entity-id';
 
 export enum TypeEnum {
-  session,
-  monthly,
-  other,
+  Subscription = 'subscription',
+  AddOn = 'add-on',
+  Other = 'other',
 }
 
 export enum MethodEnum {
-  pix,
-  cash,
-  credit,
-  debit,
+  Pix = 'pix',
+  Cash = 'cash',
+  Credit = 'credit',
+  Debit = 'debit',
 }
 
 interface PaymentProps {
   professionalId: string;
-  patientId: string;
-  sessionId: string;
+  subscriptionId?: string | null;
   type: TypeEnum;
   amount: number;
   paidAt: Date;
@@ -32,12 +31,8 @@ export class Payment extends Entity<PaymentProps> {
     return this.props.professionalId;
   }
 
-  get patientId() {
-    return this.props.patientId;
-  }
-
-  get sessionId() {
-    return this.props.sessionId;
+  get subscriptionId() {
+    return this.props.subscriptionId ?? null;
   }
 
   get type() {
@@ -64,6 +59,10 @@ export class Payment extends Entity<PaymentProps> {
     return this.props.createdAt;
   }
 
+  set subscriptionId(subscriptionId: string | null | undefined) {
+    this.props.subscriptionId = subscriptionId ?? null;
+  }
+
   set type(type: TypeEnum) {
     this.props.type = type;
   }
@@ -85,13 +84,14 @@ export class Payment extends Entity<PaymentProps> {
   }
 
   static create(
-    props: Optional<PaymentProps, 'createdAt'>,
+    props: Optional<PaymentProps, 'createdAt' | 'subscriptionId'>,
     id?: UniqueEntityID
   ) {
     const payment = new Payment(
       {
         ...props,
         createdAt: props.createdAt ?? new Date(),
+        subscriptionId: props.subscriptionId ?? null,
         notes: props.notes ?? null,
       },
       id

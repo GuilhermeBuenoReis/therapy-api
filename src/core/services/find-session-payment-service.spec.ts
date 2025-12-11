@@ -2,22 +2,21 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryPaymentRepository } from '../../../test/repositories/in-memory-payment-repository';
 import { makePayment } from '../../../test/factories/make-payment';
 import { ErrorPaymentNotFound } from './errors/error-payment-not-found';
-import { FindSessionPaymentService } from './find-session-payment-service';
+import { FindSubscriptionPaymentService } from './find-session-payment-service';
 
-let sut: FindSessionPaymentService;
+let sut: FindSubscriptionPaymentService;
 let inMemoryPaymentRepository: InMemoryPaymentRepository;
 
-describe('Find Session Payment Service', () => {
+describe('Find Subscription Payment Service', () => {
   beforeEach(() => {
     inMemoryPaymentRepository = new InMemoryPaymentRepository();
-    sut = new FindSessionPaymentService(inMemoryPaymentRepository);
+    sut = new FindSubscriptionPaymentService(inMemoryPaymentRepository);
   });
 
-  it('should be able to find a payment by session id', async () => {
+  it('should be able to find a payment by subscription id', async () => {
     const payment = makePayment({
       professionalId: 'professional-01',
-      patientId: 'patient-01',
-      sessionId: 'session-01',
+      subscriptionId: 'subscription-01',
       amount: 120,
       paidAt: new Date('2024-07-05T13:40:00Z'),
     });
@@ -25,18 +24,20 @@ describe('Find Session Payment Service', () => {
     await inMemoryPaymentRepository.create(payment);
 
     const result = await sut.handle({
-      sessionId: 'session-01',
+      professionalId: 'professional-01',
+      subscriptionId: 'subscription-01',
     });
 
     expect(result.isRight()).toBe(true);
     if (result.isRight()) {
-      expect(result.value.payment.sessionId).toBe('session-01');
+      expect(result.value.payment.subscriptionId).toBe('subscription-01');
     }
   });
 
-  it('should return left when no payment for session', async () => {
+  it('should return left when no payment for subscription', async () => {
     const result = await sut.handle({
-      sessionId: 'missing-session',
+      professionalId: 'professional-01',
+      subscriptionId: 'missing-subscription',
     });
 
     expect(result.isLeft()).toBe(true);

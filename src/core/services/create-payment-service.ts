@@ -1,13 +1,11 @@
 import { type MethodEnum, Payment, type TypeEnum } from '../entities/payment';
 import type { PaymentRepository } from '../repositories/payment-repository';
-import { type Either, left, right } from '../utils/either';
+import { type Either, right } from '../utils/either';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { ErrorPaymentSessionAlreadyExists } from './errors/error-payment-session-already-exists';
 
 export interface CreatePaymentServiceRequest {
   professionalId: string;
-  patientId: string;
-  sessionId: string;
+  subscriptionId?: string | null;
   type: TypeEnum;
   amount: number;
   paidAt: Date;
@@ -16,7 +14,7 @@ export interface CreatePaymentServiceRequest {
 }
 
 type CreatePaymentServiceResponse = Either<
-  ErrorPaymentSessionAlreadyExists,
+  never,
   { payment: Payment }
 >;
 
@@ -25,26 +23,17 @@ export class CreatePaymentService {
 
   async handle({
     professionalId,
-    patientId,
-    sessionId,
+    subscriptionId,
     type,
     amount,
     paidAt,
     method,
     notes,
   }: CreatePaymentServiceRequest): Promise<CreatePaymentServiceResponse> {
-    const existingSessionPayment =
-      await this.paymentRepository.findSessionPayment(sessionId);
-
-    if (existingSessionPayment) {
-      return left(new ErrorPaymentSessionAlreadyExists());
-    }
-
     const payment = Payment.create(
       {
         professionalId,
-        patientId,
-        sessionId,
+        subscriptionId: subscriptionId ?? null,
         type,
         amount,
         paidAt,

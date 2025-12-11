@@ -1,6 +1,6 @@
-export class ErrorPaymentsForPatientNotFound extends Error {
+export class ErrorSubscriptionPaymentsNotFound extends Error {
   constructor() {
-    super('No payments found for this patient.');
-    this.name = 'ErrorPaymentsForPatientNotFound';
+    super('No subscription payments found for this professional.');
+    this.name = 'ErrorSubscriptionPaymentsNotFound';
   }
 }

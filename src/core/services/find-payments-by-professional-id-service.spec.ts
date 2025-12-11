@@ -17,8 +17,7 @@ describe('Find Payments By Professional Id Service', () => {
   it('should be able to find payments by professional id', async () => {
     const payment = makePayment({
       professionalId: 'professional-01',
-      patientId: 'patient-01',
-      sessionId: 'session-01',
+      subscriptionId: 'subscription-01',
       amount: 150,
     }, new UniqueEntityID('payment-01'));
 

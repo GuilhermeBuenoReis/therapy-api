@@ -4,8 +4,7 @@ import { UniqueEntityID } from '../../src/core/utils/unique-entity-id';
 
 type PaymentOverride = Partial<{
   professionalId: string;
-  patientId: string;
-  sessionId: string;
+  subscriptionId: string | null;
   type: TypeEnum;
   amount: number;
   paidAt: Date;
@@ -21,12 +20,12 @@ export function makePayment(
   const payment = Payment.create(
     {
       professionalId: override.professionalId ?? new UniqueEntityID().toString(),
-      patientId: override.patientId ?? new UniqueEntityID().toString(),
-      sessionId: override.sessionId ?? new UniqueEntityID().toString(),
-      type: override.type ?? TypeEnum.session,
+      subscriptionId:
+        override.subscriptionId ?? new UniqueEntityID().toString(),
+      type: override.type ?? TypeEnum.Subscription,
       amount: override.amount ?? faker.number.int({ min: 80, max: 400 }),
       paidAt: override.paidAt ?? faker.date.recent(),
-      method: override.method ?? MethodEnum.pix,
+      method: override.method ?? MethodEnum.Pix,
       notes: override.notes ?? faker.lorem.sentence(),
       createdAt: override.createdAt,
     },

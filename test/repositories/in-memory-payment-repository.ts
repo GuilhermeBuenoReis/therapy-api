@@ -17,28 +17,17 @@ export class InMemoryPaymentRepository implements PaymentRepository {
     return this.items.filter(item => item.professionalId === professionalId);
   }
 
-  async findByPatientId(patientId: string): Promise<Payment[]> {
-    return this.items.filter(item => item.patientId === patientId);
-  }
-
-  async findLatestForPatient(patientId: string): Promise<Payment | null> {
+  async findLatestForProfessional(
+    professionalId: string
+  ): Promise<Payment | null> {
     const payments = this.items
-      .filter(item => item.patientId === patientId)
+      .filter(item => item.professionalId === professionalId)
       .sort((a, b) => b.paidAt.getTime() - a.paidAt.getTime());
 
     if (payments.length === 0) {
       return null;
     }
     return payments[0];
-  }
-
-  async findSessionPayment(sessionId: string): Promise<Payment | null> {
-    const payment = this.items.find(item => item.sessionId === sessionId);
-
-    if (!payment) {
-      return null;
-    }
-    return payment;
   }
 
   async create(payment: Payment): Promise<void> {

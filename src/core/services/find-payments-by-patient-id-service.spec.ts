@@ -1,41 +1,26 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryPaymentRepository } from '../../../test/repositories/in-memory-payment-repository';
-import { InMemoryPatientRepository } from '../../../test/repositories/in-memory-patient-repository';
-import { makePatient } from '../../../test/factories/make-patient';
 import { makePayment } from '../../../test/factories/make-payment';
 import { UniqueEntityID } from '../utils/unique-entity-id';
-import { ErrorPaymentsForPatientNotFound } from './errors/error-payments-for-patient-not-found';
-import { ErrorPatientNotFound } from './errors/patient-not-found';
-import { ErrorPatientNotLinkedToProfessional } from './errors/patient-not-linked-to-a-professional';
-import { FindPaymentsByPatientIdService } from './find-payments-by-patient-id-service';
-import { VerifyProfessionalHasAccessToPatient } from './rules/verify-professional-has-access-to-patient';
+import { ErrorSubscriptionPaymentsNotFound } from './errors/error-payments-for-patient-not-found';
+import { FindSubscriptionPaymentsByProfessionalService } from './find-payments-by-patient-id-service';
 
-let sut: FindPaymentsByPatientIdService;
+let sut: FindSubscriptionPaymentsByProfessionalService;
 let inMemoryPaymentRepository: InMemoryPaymentRepository;
-let inMemoryPatientRepository: InMemoryPatientRepository;
 
-describe('Find Payments By Patient Id Service', () => {
+describe('Find Subscription Payments By Professional Service', () => {
   beforeEach(() => {
     inMemoryPaymentRepository = new InMemoryPaymentRepository();
-    inMemoryPatientRepository = new InMemoryPatientRepository();
-    const verifier = new VerifyProfessionalHasAccessToPatient(
-      inMemoryPatientRepository
-    );
-    sut = new FindPaymentsByPatientIdService(
-      inMemoryPaymentRepository,
-      verifier
+    sut = new FindSubscriptionPaymentsByProfessionalService(
+      inMemoryPaymentRepository
     );
   });
 
-  it('should be able to find payments by patient id', async () => {
-    const patient = makePatient({ professionalsId: 'professional-01' });
-    await inMemoryPatientRepository.create(patient);
-
+  it('should be able to find payments by professional id', async () => {
     const payment = makePayment(
       {
         professionalId: 'professional-01',
-        patientId: patient.id.toString(),
-        sessionId: 'session-01',
+        subscriptionId: 'subscription-01',
         amount: 150,
       },
       new UniqueEntityID('payment-01')
@@ -44,58 +29,52 @@ describe('Find Payments By Patient Id Service', () => {
     await inMemoryPaymentRepository.create(payment);
 
     const result = await sut.handle({
-      patientId: patient.id.toString(),
       professionalId: 'professional-01',
     });
 
     expect(result.isRight()).toBe(true);
     if (result.isRight()) {
       expect(result.value.payments).toHaveLength(1);
-      expect(result.value.payments[0].patientId).toBe(patient.id.toString());
+      expect(result.value.payments[0].subscriptionId).toBe('subscription-01');
     }
   });
 
-  it('should return error when patient does not exist', async () => {
+  it('should filter by subscription when provided', async () => {
+    await inMemoryPaymentRepository.create(
+      makePayment({
+        professionalId: 'professional-01',
+        subscriptionId: 'subscription-01',
+      })
+    );
+    await inMemoryPaymentRepository.create(
+      makePayment({
+        professionalId: 'professional-01',
+        subscriptionId: 'subscription-02',
+      })
+    );
+
     const result = await sut.handle({
-      patientId: 'missing-patient',
       professionalId: 'professional-01',
+      subscriptionId: 'subscription-02',
     });
 
-    expect(result.isLeft()).toBe(true);
-    if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(ErrorPatientNotFound);
+    expect(result.isRight()).toBe(true);
+    if (result.isRight()) {
+      expect(result.value.payments).toHaveLength(1);
+      expect(result.value.payments[0].subscriptionId).toBe('subscription-02');
     }
   });
 
-  it('should return error when patient is linked to another professional', async () => {
-    const patient = makePatient({ professionalsId: 'another-professional' });
-    await inMemoryPatientRepository.create(patient);
-
+  it('should return left when no payments for professional/subscription', async () => {
     const result = await sut.handle({
-      patientId: patient.id.toString(),
-      professionalId: 'professional-01',
+      professionalId: 'missing-professional',
     });
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
       expect(result.value).toBeInstanceOf(
-        ErrorPatientNotLinkedToProfessional
+        ErrorSubscriptionPaymentsNotFound
       );
-    }
-  });
-
-  it('should return left when no payments for patient', async () => {
-    const patient = makePatient({ professionalsId: 'professional-01' });
-    await inMemoryPatientRepository.create(patient);
-
-    const result = await sut.handle({
-      patientId: patient.id.toString(),
-      professionalId: 'professional-01',
-    });
-
-    expect(result.isLeft()).toBe(true);
-    if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(ErrorPaymentsForPatientNotFound);
     }
   });
 });

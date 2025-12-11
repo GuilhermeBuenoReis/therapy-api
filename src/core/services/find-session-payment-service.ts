@@ -3,22 +3,26 @@ import type { PaymentRepository } from '../repositories/payment-repository';
 import { type Either, left, right } from '../utils/either';
 import { ErrorPaymentNotFound } from './errors/error-payment-not-found';
 
-export interface FindSessionPaymentServiceRequest {
-  sessionId: string;
+export interface FindSubscriptionPaymentServiceRequest {
+  professionalId: string;
+  subscriptionId: string;
 }
 
-type FindSessionPaymentServiceResponse = Either<
+type FindSubscriptionPaymentServiceResponse = Either<
   ErrorPaymentNotFound,
   { payment: Payment }
 >;
 
-export class FindSessionPaymentService {
+export class FindSubscriptionPaymentService {
   constructor(private paymentRepository: PaymentRepository) {}
 
   async handle({
-    sessionId,
-  }: FindSessionPaymentServiceRequest): Promise<FindSessionPaymentServiceResponse> {
-    const payment = await this.paymentRepository.findSessionPayment(sessionId);
+    professionalId,
+    subscriptionId,
+  }: FindSubscriptionPaymentServiceRequest): Promise<FindSubscriptionPaymentServiceResponse> {
+    const payment = (
+      await this.paymentRepository.findByProfessionalId(professionalId)
+    ).find(item => item.subscriptionId === subscriptionId);
 
     if (!payment) {
       return left(new ErrorPaymentNotFound());
