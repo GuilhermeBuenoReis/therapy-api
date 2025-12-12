@@ -9,11 +9,10 @@ import {
 import { patient } from './patient';
 import { professional } from './professional';
 
-const statusEnum = pgEnum('status_enum', [
+export const statusEnum = pgEnum('status_enum', [
   'scheduled',
-  'in-progress',
   'completed',
-  'canceled'
+  'canceled',
 ]);
 
 export const session = pgTable('sessions', {
@@ -22,7 +21,7 @@ export const session = pgTable('sessions', {
   price: real('price').notNull(),
   notes: varchar({ length: 20.0 }),
   sessionDate: timestamp('session_date', { mode: 'date' }).notNull(),
-  status: statusEnum('status').notNull().default('scheduled'),
+  status: statusEnum('status').default('scheduled').notNull(),
   durationMinutes: real('duration_minutes').notNull(),
 
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),

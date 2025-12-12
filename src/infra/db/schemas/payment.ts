@@ -1,13 +1,38 @@
-import { pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
-import { patient } from './patient';
+import {
+  pgEnum,
+  pgTable,
+  real,
+  text,
+  timestamp,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { professional } from './professional';
-import { user } from './user';
+import { subscription } from './subscription';
+
+export const paymentTypeEnum = pgEnum('payment_type', [
+  'subscription',
+  'add-on',
+  'other',
+]);
+
+export const paymentMethodEnum = pgEnum('payment_method', [
+  'pix',
+  'cash',
+  'credit',
+  'debit',
+]);
 
 export const payment = pgTable('payments', {
   id: uuid('id').primaryKey().defaultRandom(),
-  patient: uuid('patient_id').references(() => patient.id),
-  professionalId: uuid('professional_id').references(() => professional.id),
+  professionalId: uuid('professional_id')
+    .references(() => professional.id)
+    .notNull(),
+  subscriptionId: uuid('subscription_id').references(() => subscription.id),
+  type: paymentTypeEnum('type').notNull(),
+  amount: real('amount').notNull(),
+  paidAt: timestamp('paid_at', { mode: 'date' }).notNull(),
+  method: paymentMethodEnum('method').notNull(),
+  notes: text('notes'),
 
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { mode: 'date' }),
 });
