@@ -1,8 +1,14 @@
+import type {
+  AuthSessionGateway,
+  AuthSessionPayload,
+} from '../gateways/auth-session-gateway';
+import { UserRole } from '../entities/user';
 import type { ProfessionalsRepository } from '../repositories/professionals-repository';
 import type { UserRepository } from '../repositories/user-repository';
-import type { Encrypter } from '../utils/cryptography/encrypter';
 import type { HashComparer } from '../utils/cryptography/hash-comparer';
 import { left, right, type Either } from '../utils/either';
+import { ProfessionalProfileNotFoundError } from './errors/professional-profile-not-found-error';
+import { ProfessionalRoleRequiredError } from './errors/professional-role-required-error';
 import { WrongCredentialsError } from './errors/wrong-creadentials-error';
 
 
@@ -12,18 +18,23 @@ interface AuthenticateProfessionalServiceRequest {
 }
 
 type AuthenticateProfessionalServiceResponse = Either<
-  WrongCredentialsError,
+  | WrongCredentialsError
+  | ProfessionalRoleRequiredError
+  | ProfessionalProfileNotFoundError,
   {
-    accessToken: string;
+    sessionToken: string;
+    sessionExpiresAt?: Date;
+    authenticatedUser: AuthSessionPayload;
   }
 >;
 
 export class AuthenticateProfessionalService {
   constructor(
     private userRepository: UserRepository,
+    private professionalsRepository: ProfessionalsRepository,
     private hashCompare: HashComparer,
-    private encrypter: Encrypter
-  ) { }
+    private authSessionGateway: AuthSessionGateway
+  ) {}
 
   async execute({
     email,
@@ -44,12 +55,30 @@ export class AuthenticateProfessionalService {
       return left(new WrongCredentialsError());
     }
 
-    const accessToken = await this.encrypter.encrypt({
-      sub: user.id.toString(),
-    });
+    if (user.role !== UserRole.Professional) {
+      return left(new ProfessionalRoleRequiredError());
+    }
+
+    const professional = await this.professionalsRepository.findByUserId(
+      user.id.toString()
+    );
+
+    if (!professional) {
+      return left(new ProfessionalProfileNotFoundError());
+    }
+
+    const sessionPayload: AuthSessionPayload = {
+      userId: user.id.toString(),
+      professionalId: professional.id.toString(),
+      role: user.role,
+    };
+
+    const session = await this.authSessionGateway.createSession(sessionPayload);
 
     return right({
-      accessToken,
+      sessionToken: session.token,
+      sessionExpiresAt: session.expiresAt,
+      authenticatedUser: sessionPayload,
     });
   }
 }
