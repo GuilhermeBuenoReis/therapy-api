@@ -3,6 +3,7 @@ import { ZodError, z } from 'zod';
 import { UserRole } from '@/core/entities/user';
 import { CreateUserService } from '@/core/services/create-user-service';
 import { ErrorUserAlreadyExists } from '@/core/services/errors/user-already-exist';
+import { BcryptHasher } from '@/infra/cryptography/bcrypt-hasher';
 import { DrizzleUserRepository } from '@/infra/db/repositories/drizzle-user-repository';
 
 export const createUserRoute: FastifyPluginAsyncZod = async (app) => {
@@ -36,18 +37,23 @@ export const createUserRoute: FastifyPluginAsyncZod = async (app) => {
     },
     async (request, reply) => {
       const drizzleRepository = new DrizzleUserRepository();
-      const createUserService = new CreateUserService(drizzleRepository);
-
-      const { name, email, password, role } = request.body;
+      const bcryptHasher = new BcryptHasher();
+      const createUserService = new CreateUserService(
+        drizzleRepository,
+        bcryptHasher
+      );
 
       try {
+        const { name, email, password, role } = request.body;
+
         const domainRole =
           role === 'professional' ? UserRole.Professional : UserRole.Patient;
+        const hashedPassword = await bcryptHasher.hash(password);
 
         const result = await createUserService.handle({
           name,
           email,
-          password,
+          password: hashedPassword,
           role: domainRole,
         });
 

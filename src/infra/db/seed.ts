@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import { hash } from 'bcryptjs';
 import { env } from '../env';
 import { patient } from './schemas/patient';
 import { payment } from './schemas/payment';
@@ -24,12 +25,15 @@ async function seed() {
   await db.delete(professional);
   await db.delete(user);
 
+  const defaultPassword = 'Therapy#2024';
+  const hashedDefaultPassword = await hash(defaultPassword, 10);
+
   const [professionalUser] = await db
     .insert(user)
     .values({
       name: 'Dra. Ana Albuquerque',
       email: 'ana.albuquerque@therapy.com',
-      password: 'hashed-password',
+      password: hashedDefaultPassword,
       role: 'professional',
     })
     .returning();
@@ -39,7 +43,7 @@ async function seed() {
     .values({
       name: 'Carlos Maia',
       email: 'carlos.maia@therapy.com',
-      password: 'hashed-password',
+      password: hashedDefaultPassword,
       role: 'patient',
     })
     .returning();
@@ -64,8 +68,8 @@ async function seed() {
       userId: patientUser.id,
       professionalId: professionalRecord.id,
       birthDate: '1992-05-12',
-      phone: '+55 11 98888-1002',
-      note: 'Sessões semanais às segundas-feiras',
+      phone: '+5511988881002',
+      note: 'Sessões segundas',
     })
     .returning();
 
@@ -85,7 +89,7 @@ async function seed() {
       patientId: patientRecord.id,
       professionalId: professionalRecord.id,
       price: professionalRecord.pricePerSession,
-      notes: 'Sessão inicial com avaliação',
+      notes: 'Sessão inicial',
       sessionDate: new Date('2024-01-08T14:00:00Z'),
       status: 'completed',
       durationMinutes: professionalRecord.sessionDuration,
@@ -94,7 +98,7 @@ async function seed() {
       patientId: patientRecord.id,
       professionalId: professionalRecord.id,
       price: professionalRecord.pricePerSession,
-      notes: 'Foco em técnicas de respiração',
+      notes: 'Respiracao foco',
       sessionDate: new Date('2024-01-15T14:00:00Z'),
       status: 'scheduled',
       durationMinutes: professionalRecord.sessionDuration,
