@@ -12,6 +12,7 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { env } from '../env/index';
+import { createUserRoute } from './routes/create-user-route';
 import { healthRoutes } from './routes/health';
 
 export const app = fastify().withTypeProvider<ZodTypeProvider>();
@@ -30,13 +31,14 @@ app.register(fastifySwagger, {
 app.register(fastifyCors);
 
 app.register(scalar, {
-  routePrefix: '/reference',
+  routePrefix: '/scalar',
   configuration: {
     theme: 'kepler',
   },
 });
 
 app.register(healthRoutes);
+app.register(createUserRoute);
 
 app.listen({ port: env.PORT, host: '0.0.0.0' }).then(() => {
   console.log(`Server is running on port ${env.PORT}`);

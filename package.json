@@ -25,6 +25,7 @@
     "@faker-js/faker": "^10.1.0",
     "@tsconfig/node24": "^24.0.3",
     "@types/node": "^24.10.1",
+    "@types/pg": "^8.16.0",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.7",
     "tsx": "^4.20.6",
