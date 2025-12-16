@@ -12,5 +12,15 @@
       120
     ],
     "editor.defaultFormatter": "biomejs.biome",
-  }
+  },
+  "[javascript]": {
+    "javascript.preferences.quoteStyle": "single",
+    "editor.rulers": [
+      80,
+      120
+    ],
+    "editor.defaultFormatter": "biomejs.biome",
+  },
+  "chatgpt.openOnStartup": false,
+  "chatgpt.commentCodeLensEnabled": false,
 }

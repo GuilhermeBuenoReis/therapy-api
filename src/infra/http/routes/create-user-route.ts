@@ -14,7 +14,6 @@ export const createUserRoute: FastifyPluginAsyncZod = async (app) => {
         summary: 'Create a new user',
         operationId: 'createUser',
         tags: ['User'],
-        description: 'Create a new user',
         body: z.object({
           name: z.string(),
           email: z.email(),
@@ -23,6 +22,7 @@ export const createUserRoute: FastifyPluginAsyncZod = async (app) => {
         }),
         response: {
           201: z.null(),
+
           400: z.object({
             message: z.string(),
           }),
@@ -35,20 +35,19 @@ export const createUserRoute: FastifyPluginAsyncZod = async (app) => {
         },
       },
     },
+
     async (request, reply) => {
-      const drizzleRepository = new DrizzleUserRepository();
-      const bcryptHasher = new BcryptHasher();
-      const createUserService = new CreateUserService(
-        drizzleRepository,
-        bcryptHasher
-      );
+      const userRepository = new DrizzleUserRepository();
+      const hasher = new BcryptHasher();
+      const createUserService = new CreateUserService(userRepository, hasher);
 
       try {
         const { name, email, password, role } = request.body;
 
         const domainRole =
           role === 'professional' ? UserRole.Professional : UserRole.Patient;
-        const hashedPassword = await bcryptHasher.hash(password);
+
+        const hashedPassword = await hasher.hash(password);
 
         const result = await createUserService.handle({
           name,
@@ -59,7 +58,6 @@ export const createUserRoute: FastifyPluginAsyncZod = async (app) => {
 
         if (result.isLeft()) {
           const error = result.value;
-
           const statusCode =
             error instanceof ErrorUserAlreadyExists ? 409 : 400;
 

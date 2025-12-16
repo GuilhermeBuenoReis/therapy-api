@@ -12,8 +12,14 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { env } from '../env/index';
+import { authenticateProfessionalRoute } from './routes/authenticate-professional-route';
+import { betterAuthProxyRoute } from './routes/better-auth-proxy-route';
 import { createUserRoute } from './routes/create-user-route';
+import { deleteUserRoute } from './routes/delete-user-route';
+import { findUserByEmailRoute } from './routes/find-user-by-email-route';
+import { findUserByIdRoute } from './routes/find-user-by-id-route';
 import { healthRoutes } from './routes/health';
+import { updateUserRoute } from './routes/update-user-route';
 
 export const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -28,7 +34,13 @@ app.register(fastifySwagger, {
   transform: jsonSchemaTransform,
 });
 
-app.register(fastifyCors);
+app.register(fastifyCors, {
+  origin: env.CLIENT_ORIGIN,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  maxAge: 86_400,
+});
 
 app.register(scalar, {
   routePrefix: '/scalar',
@@ -39,6 +51,12 @@ app.register(scalar, {
 
 app.register(healthRoutes);
 app.register(createUserRoute);
+app.register(authenticateProfessionalRoute);
+app.register(findUserByEmailRoute);
+app.register(findUserByIdRoute);
+app.register(updateUserRoute);
+app.register(deleteUserRoute);
+app.register(betterAuthProxyRoute);
 
 app.listen({ port: env.PORT, host: '0.0.0.0' }).then(() => {
   console.log(`Server is running on port ${env.PORT}`);

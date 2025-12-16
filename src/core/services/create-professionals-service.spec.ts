@@ -4,6 +4,7 @@ import { InMemoryUserRepository } from '../../../test/repositories/in-memory-use
 import { User } from '../entities/user';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { CreateProfessionalsService } from './create-professionals-service';
+import { PaymentConfirmationRequiredError } from './errors/payment-confirmation-required-error';
 import { ErrorUserNotFound } from './errors/user-not-found';
 
 let sut: CreateProfessionalsService;
@@ -30,6 +31,7 @@ describe('Create Professionals Service', () => {
       },
       new UniqueEntityID('user-01')
     );
+    user.markPaymentAsCompleted();
 
     await inMemoryUserRepository.create(user);
 
@@ -68,6 +70,35 @@ describe('Create Professionals Service', () => {
       expect(result.value).toBeInstanceOf(ErrorUserNotFound);
     }
 
+    expect(inMemoryProfessionalsRepository.items).toHaveLength(0);
+  });
+
+  it('should not create professionals when payment was not confirmed', async () => {
+    const user = User.create({
+      name: 'Jane Doe',
+      email: 'janedoe@gmail.com',
+      password: '123456',
+    });
+
+    await inMemoryUserRepository.create(user);
+
+    const result = await sut.handle({
+      userId: user.id.toString(),
+      biography: 'bio',
+      monthlyPrice: 100,
+      phone: '123456789',
+      pricePerSession: 50,
+      registration_number: '123456789',
+      sessionDuration: 60,
+      specialty: 'specialty',
+    });
+
+    expect(result.isLeft()).toBe(true);
+    if (result.isLeft()) {
+      expect(result.value).toBeInstanceOf(
+        PaymentConfirmationRequiredError
+      );
+    }
     expect(inMemoryProfessionalsRepository.items).toHaveLength(0);
   });
 });

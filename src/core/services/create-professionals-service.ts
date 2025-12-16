@@ -4,6 +4,7 @@ import type { UserRepository } from '../repositories/user-repository';
 import { type Either, left, right } from '../utils/either';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { ErrorUserNotFound } from './errors/user-not-found';
+import { PaymentConfirmationRequiredError } from './errors/payment-confirmation-required-error';
 
 export interface CreateProfessionalsServiceRequest {
   userId: string;
@@ -17,7 +18,7 @@ export interface CreateProfessionalsServiceRequest {
 }
 
 type CreateProfessionalsServiceResponse = Either<
-  ErrorUserNotFound,
+  ErrorUserNotFound | PaymentConfirmationRequiredError,
   { professionals: Professionals }
 >;
 
@@ -41,6 +42,10 @@ export class CreateProfessionalsService {
 
     if (!user) {
       return left(new ErrorUserNotFound());
+    }
+
+    if (!user.hasCompletedPayment) {
+      return left(new PaymentConfirmationRequiredError());
     }
 
     const professionals = Professionals.create(

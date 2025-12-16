@@ -118,3 +118,12 @@ O sistema utiliza assinatura mensal para liberar funcionalidades. Ao criar uma a
 - Criar testes abrangentes para cada regra de negócio, inclusive fluxo de assinatura e relatórios.
 - Modelar eventos de domínio para suportar notificações (ex.: assinatura prestes a expirar) quando a infraestrutura existir.
 - Documentar políticas de segurança, auditoria, retenção e privacidade na futura camada técnica.
+
+## 11. Ambiente local & seed
+1. Copie o arquivo `.env.example` para `.env` e ajuste os valores se necessário.
+2. Execute as migrações: `pnpm drizzle-kit migrate`.
+3. Popule o banco com dados de teste e pagamento confirmado: `pnpm seed`.
+
+### Credenciais padrão do seed
+- **Profissional:** `ana.albuquerque@therapy.test` / `Therapy#2024`
+- **Paciente:** `carlos.maia@therapy.test` / `Therapy#2024`

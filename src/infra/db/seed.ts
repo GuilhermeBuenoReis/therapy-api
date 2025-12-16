@@ -25,25 +25,39 @@ async function seed() {
   await db.delete(professional);
   await db.delete(user);
 
-  const defaultPassword = 'Therapy#2024';
-  const hashedDefaultPassword = await hash(defaultPassword, 10);
+  const {
+    SEED_PROFESSIONAL_NAME,
+    SEED_PROFESSIONAL_EMAIL,
+    SEED_PROFESSIONAL_PASSWORD,
+    SEED_PATIENT_NAME,
+    SEED_PATIENT_EMAIL,
+    SEED_PATIENT_PASSWORD,
+    SEED_PAYMENT_CONFIRMED_AT,
+  } = env;
+
+  const professionalPasswordHash = await hash(SEED_PROFESSIONAL_PASSWORD, 10);
+  const patientPasswordHash = await hash(SEED_PATIENT_PASSWORD, 10);
+  const paymentConfirmedAt = new Date(SEED_PAYMENT_CONFIRMED_AT);
 
   const [professionalUser] = await db
     .insert(user)
     .values({
-      name: 'Dra. Ana Albuquerque',
-      email: 'ana.albuquerque@therapy.com',
-      password: hashedDefaultPassword,
+      name: SEED_PROFESSIONAL_NAME,
+      email: SEED_PROFESSIONAL_EMAIL,
+      password: professionalPasswordHash,
       role: 'professional',
+      paymentConfirmedAt: Number.isNaN(paymentConfirmedAt.valueOf())
+        ? new Date()
+        : paymentConfirmedAt,
     })
     .returning();
 
   const [patientUser] = await db
     .insert(user)
     .values({
-      name: 'Carlos Maia',
-      email: 'carlos.maia@therapy.com',
-      password: hashedDefaultPassword,
+      name: SEED_PATIENT_NAME,
+      email: SEED_PATIENT_EMAIL,
+      password: patientPasswordHash,
       role: 'patient',
     })
     .returning();
@@ -53,6 +67,7 @@ async function seed() {
     .values({
       userId: professionalUser.id,
       specialty: 'Terapia Cognitivo-Comportamental',
+      registrationNumber: 'CRP-0001/BR',
       phone: '+55 11 98888-0001',
       biography:
         'Psicóloga clínica com foco em TCC para adultos e adolescentes.',
@@ -126,6 +141,12 @@ async function seed() {
   ]);
 
   console.log('✅ Seed finalizado com sucesso!');
+  console.log(
+    `👤 Profissional teste: ${SEED_PROFESSIONAL_EMAIL} / ${SEED_PROFESSIONAL_PASSWORD}`
+  );
+  console.log(
+    `🧑‍🤝‍🧑 Paciente teste: ${SEED_PATIENT_EMAIL} / ${SEED_PATIENT_PASSWORD}`
+  );
 }
 
 seed()

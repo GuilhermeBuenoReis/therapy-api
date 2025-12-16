@@ -12,6 +12,7 @@ interface UserProps {
   email: string;
   password: string;
   role: UserRole
+  paymentConfirmedAt?: Date | null;
   createdAt: Date;
   updatedAt?: Date | null;
 }
@@ -30,6 +31,14 @@ export class User extends Entity<UserProps> {
 
   get role() {
     return this.props.role;
+  }
+
+  get paymentConfirmedAt() {
+    return this.props.paymentConfirmedAt ?? null;
+  }
+
+  get hasCompletedPayment() {
+    return !!this.props.paymentConfirmedAt;
   }
 
   get createdAt() {
@@ -64,11 +73,17 @@ export class User extends Entity<UserProps> {
     this.touch();
   }
 
-  static create(props: Optional<UserProps, 'createdAt' | 'role'>, id?: UniqueEntityID) {
+  markPaymentAsCompleted(confirmedAt: Date = new Date()) {
+    this.props.paymentConfirmedAt = confirmedAt;
+    this.touch();
+  }
+
+  static create(props: Optional<UserProps, 'createdAt' | 'role' | 'paymentConfirmedAt'>, id?: UniqueEntityID) {
     const user = new User(
       {
         ...props,
         role: props.role ?? UserRole.Professional,
+        paymentConfirmedAt: props.paymentConfirmedAt ?? null,
         createdAt: props.createdAt ?? new Date(),
       },
       id

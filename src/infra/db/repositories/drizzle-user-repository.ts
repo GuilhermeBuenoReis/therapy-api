@@ -50,6 +50,7 @@ export class DrizzleUserRepository implements UserRepository {
         email: userData.email,
         password: userData.password,
         role: userData.role,
+        paymentConfirmedAt: userData.paymentConfirmedAt,
         updatedAt: userData.updatedAt,
       })
       .where(eq(userSchema.id, userData.id));

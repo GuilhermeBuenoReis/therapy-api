@@ -9,7 +9,7 @@ export interface CreateUserServiceRequest {
   name: string;
   email: string;
   password: string;
-  role: UserRole
+  role: UserRole;
 }
 
 type CreateUserServiceResponse = Either<ErrorUserAlreadyExists, { user: User }>;
@@ -24,7 +24,7 @@ export class CreateUserService {
     name,
     email,
     password,
-    role
+    role,
   }: CreateUserServiceRequest): Promise<CreateUserServiceResponse> {
     const userAlreadyExist = await this.userRepository.findByEmail(email);
 
@@ -42,7 +42,7 @@ export class CreateUserService {
         name,
         email,
         password: hashedPassword,
-        role
+        role,
       },
       new UniqueEntityID()
     );

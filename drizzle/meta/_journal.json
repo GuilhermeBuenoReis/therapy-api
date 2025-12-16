@@ -8,6 +8,20 @@
       "when": 1765579913315,
       "tag": "0000_peaceful_tag",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1765581010000,
+      "tag": "0001_payment_confirmation_flag",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765838924586,
+      "tag": "0002_add_professional_registration_number",
+      "breakpoints": true
     }
   ]
 }

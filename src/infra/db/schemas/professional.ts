@@ -5,6 +5,7 @@ export const professional = pgTable('professionals', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => user.id),
   specialty: text('specialty').notNull(),
+  registrationNumber: text('registration_number').notNull(),
   phone: text('phone').notNull(),
   biography: text('biography').notNull(),
   pricePerSession: real('price_per_session').notNull(),

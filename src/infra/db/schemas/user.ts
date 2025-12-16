@@ -16,9 +16,9 @@ export const user = pgTable(
     email: text('email').notNull().unique(),
     password: text('password').notNull(),
     role: userRoleEnum('role').notNull().default('professional'),
+    paymentConfirmedAt: timestamp('payment_confirmed_at', { mode: 'date' }),
 
     createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { mode: 'date' }),
   },
 );
-

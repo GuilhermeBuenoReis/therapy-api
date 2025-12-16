@@ -6,6 +6,7 @@ type UserOverride = Partial<{
   name: string;
   email: string;
   password: string;
+  paymentConfirmedAt: Date | null;
 }>;
 
 export function makeUser(override: UserOverride = {}, id?: UniqueEntityID) {
@@ -14,6 +15,7 @@ export function makeUser(override: UserOverride = {}, id?: UniqueEntityID) {
       name: faker.person.fullName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
+      paymentConfirmedAt: override.paymentConfirmedAt ?? null,
       ...override,
     },
     id

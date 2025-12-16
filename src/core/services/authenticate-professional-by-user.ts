@@ -1,16 +1,15 @@
+import { UserRole } from '../entities/user';
 import type {
   AuthSessionGateway,
   AuthSessionPayload,
-} from '../gateways/auth-session-gateway';
-import { UserRole } from '../entities/user';
+} from '../middleware/auth-session-middleware';
 import type { ProfessionalsRepository } from '../repositories/professionals-repository';
 import type { UserRepository } from '../repositories/user-repository';
 import type { HashComparer } from '../utils/cryptography/hash-comparer';
-import { left, right, type Either } from '../utils/either';
+import { type Either, left, right } from '../utils/either';
 import { ProfessionalProfileNotFoundError } from './errors/professional-profile-not-found-error';
 import { ProfessionalRoleRequiredError } from './errors/professional-role-required-error';
 import { WrongCredentialsError } from './errors/wrong-creadentials-error';
-
 
 interface AuthenticateProfessionalServiceRequest {
   email: string;
@@ -71,6 +70,7 @@ export class AuthenticateProfessionalService {
       userId: user.id.toString(),
       professionalId: professional.id.toString(),
       role: user.role,
+      email: user.email,
     };
 
     const session = await this.authSessionGateway.createSession(sessionPayload);

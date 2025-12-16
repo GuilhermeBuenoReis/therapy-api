@@ -2,7 +2,7 @@ import type {
   AuthSession,
   AuthSessionGateway,
   AuthSessionPayload,
-} from '../../src/core/gateways/auth-session-gateway';
+} from '../../src/core/middleware/auth-session-middleware';
 
 export class FakeAuthSessionGateway implements AuthSessionGateway {
   async createSession(payload: AuthSessionPayload): Promise<AuthSession> {

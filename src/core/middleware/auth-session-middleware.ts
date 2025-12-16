@@ -4,6 +4,7 @@ export interface AuthSessionPayload {
   userId: string;
   professionalId: string;
   role: UserRole;
+  email: string;
 }
 
 export interface AuthSession {
@@ -11,6 +12,6 @@ export interface AuthSession {
   expiresAt?: Date;
 }
 
-export interface AuthSessionGateway {
+export interface AuthSessionMiddleware {
   createSession(payload: AuthSessionPayload): Promise<AuthSession>;
 }
