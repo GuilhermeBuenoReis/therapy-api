@@ -4,8 +4,6 @@ import type {
   AuthSessionMiddleware,
   AuthSessionPayload,
 } from '@/core/middleware/auth-session-middleware';
-
-export const SESSION_COOKIE_NAME = 'better-auth.session_token';
 const SESSION_TTL_IN_MS = 1000 * 60 * 60; // 1 hour
 
 type SessionTokenPayload = AuthSessionPayload & {

@@ -7,10 +7,8 @@ import { WrongCredentialsError } from '@/core/services/errors/wrong-creadentials
 import { BcryptHasher } from '@/infra/cryptography/bcrypt-hasher';
 import { DrizzleProfessionalRepository } from '@/infra/db/repositories/drizzle-professional-repository';
 import { DrizzleUserRepository } from '@/infra/db/repositories/drizzle-user-repository';
-import {
-  BetterAuthSessionMiddleware,
-  SESSION_COOKIE_NAME,
-} from '@/infra/http/middleware/better-auth-session-middleware';
+import { BetterAuthSessionMiddleware } from '@/infra/http/middleware/better-auth-session-middleware';
+import { SessionCookieManager } from '@/infra/http/lib/session-cookie';
 
 export const authenticateProfessionalRoute: FastifyPluginAsyncZod = async (
   app
@@ -19,6 +17,7 @@ export const authenticateProfessionalRoute: FastifyPluginAsyncZod = async (
   const professionalRepository = new DrizzleProfessionalRepository();
   const hashComparer = new BcryptHasher();
   const sessionGateway = new BetterAuthSessionMiddleware();
+  const sessionCookieManager = new SessionCookieManager();
 
   const authenticateProfessionalService = new AuthenticateProfessionalService(
     userRepository,
@@ -92,33 +91,12 @@ export const authenticateProfessionalRoute: FastifyPluginAsyncZod = async (
         const { sessionToken, sessionExpiresAt, authenticatedUser } =
           result.value;
 
-        const maxAgeSeconds = sessionExpiresAt
-          ? Math.max(
-              0,
-              Math.floor((sessionExpiresAt.getTime() - Date.now()) / 1000)
-            )
-          : 60 * 60;
-
-        const secure =
-          ((request.headers['x-forwarded-proto'] as string | undefined) ??
-            request.protocol) === 'https';
-
-        const cookieDirectives = [
-          `${SESSION_COOKIE_NAME}=${sessionToken}`,
-          'Path=/',
-          'HttpOnly',
-          'SameSite=Lax',
-        ];
-
-        if (maxAgeSeconds > 0) {
-          cookieDirectives.push(`Max-Age=${maxAgeSeconds}`);
-        }
-
-        if (secure) {
-          cookieDirectives.push('Secure');
-        }
-
-        reply.header('Set-Cookie', cookieDirectives.join('; '));
+        sessionCookieManager.issueSessionCookie({
+          reply,
+          request,
+          token: sessionToken,
+          expiresAt: sessionExpiresAt,
+        });
 
         return reply.status(200).send({
           sessionToken,

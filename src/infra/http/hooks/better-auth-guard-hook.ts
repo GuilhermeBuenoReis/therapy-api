@@ -9,17 +9,20 @@ export async function betterAuthGuard(
 ) {
   const result = await guard.ensureAuthenticated({
     headers: request.headers as Record<string, string | string[] | undefined>,
+    cookies: request.cookies as Record<string, string | undefined>,
   });
 
   if (result.isLeft()) {
     return reply.status(401).send({ message: result.value.message });
   }
 
-  request.authUser = {
+  const session = {
     userId: result.value.user.id,
     sessionId: result.value.session.id,
     email: result.value.user.email,
     professionalId: result.value.session.professionalId,
     role: result.value.session.role,
   };
+
+  request.sub = session;
 }

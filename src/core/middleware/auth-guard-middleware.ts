@@ -4,6 +4,7 @@ import type { UserNotAuthenticatedError } from './user-not-authenticated-error';
 
 export interface EnsureAuthenticatedRequest {
   headers: Record<string, string | string[] | undefined>;
+  cookies?: Record<string, string | undefined>;
 }
 
 export interface AuthenticatedSession {

@@ -6,16 +6,13 @@ import { betterAuthGuard } from '../hooks/better-auth-guard-hook';
 
 export const findUserByIdRoute: FastifyPluginAsyncZod = async (app) => {
   app.get(
-    '/api/user/:userId',
+    '/api/user/id',
     {
       onRequest: [betterAuthGuard],
       schema: {
         summary: 'Find user by id',
         operationId: 'findUserById',
         tags: ['User'],
-        params: z.object({
-          userId: z.uuid(),
-        }),
         response: {
           200: z.object({
             id: z.uuid(),
@@ -43,7 +40,8 @@ export const findUserByIdRoute: FastifyPluginAsyncZod = async (app) => {
       const findUserByIdService = new FindUserByIdService(userRepository);
 
       try {
-        const { userId } = request.params;
+        const userId = request.sub.userId;
+
         const result = await findUserByIdService.handle({ userId });
 
         if (result.isLeft()) {

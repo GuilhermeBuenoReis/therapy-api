@@ -62,7 +62,8 @@ export const updateUserRoute: FastifyPluginAsyncZod = async (app) => {
     },
     async (request, reply) => {
       try {
-        const userId = request.authUser.userId;
+        const userId = request.sub.userId;
+
         const userRepository = new DrizzleUserRepository();
         const hasher = new BcryptHasher();
         const editUserService = new EditUserService(userRepository, hasher);

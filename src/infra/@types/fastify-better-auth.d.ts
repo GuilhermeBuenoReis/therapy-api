@@ -2,7 +2,7 @@ import 'fastify';
 
 declare module 'fastify' {
   interface FastifyRequest {
-    authUser?: {
+    sub: {
       userId: string;
       sessionId: string;
       email: string;

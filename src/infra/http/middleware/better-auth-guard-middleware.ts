@@ -6,7 +6,7 @@ import type {
 } from '@/core/middleware/auth-guard-middleware';
 import { UserNotAuthenticatedError } from '@/core/middleware/user-not-authenticated-error';
 import { left, right } from '@/core/utils/either';
-import { SESSION_COOKIE_NAME } from './better-auth-session-middleware';
+import { SESSION_COOKIE_NAME } from '../lib/session-cookie';
 
 type SessionCookiePayload = {
   userId: string;
@@ -22,18 +22,12 @@ type SessionCookiePayload = {
 export class BetterAuthGuardMiddleware implements AuthGuardMiddleware {
   async ensureAuthenticated({
     headers,
+    cookies,
   }: EnsureAuthenticatedRequest): Promise<EnsureAuthenticatedResponse> {
     try {
-      const cookieHeader = this.normalizeHeader(
-        headers?.cookie ?? headers?.Cookie
-      );
-
-      if (!cookieHeader) {
-        return left(new UserNotAuthenticatedError());
-      }
-
-      const cookies = this.parseCookies(cookieHeader);
-      const sessionToken = cookies.get(SESSION_COOKIE_NAME);
+      const sessionToken =
+        this.extractTokenFromCookies(cookies) ??
+        this.extractTokenFromHeaders(headers);
 
       if (!sessionToken) {
         return left(new UserNotAuthenticatedError());
@@ -66,6 +60,32 @@ export class BetterAuthGuardMiddleware implements AuthGuardMiddleware {
     } catch {
       return left(new UserNotAuthenticatedError());
     }
+  }
+
+  private extractTokenFromCookies(
+    cookies: Record<string, string | undefined> | undefined
+  ): string | undefined {
+    if (!cookies) {
+      return undefined;
+    }
+
+    const value = cookies[SESSION_COOKIE_NAME];
+    return value?.trim() || undefined;
+  }
+
+  private extractTokenFromHeaders(
+    headers: Record<string, string | string[] | undefined>
+  ): string | undefined {
+    const cookieHeader = this.normalizeHeader(
+      headers?.cookie ?? headers?.Cookie
+    );
+
+    if (!cookieHeader) {
+      return undefined;
+    }
+
+    const cookies = this.parseCookies(cookieHeader);
+    return cookies.get(SESSION_COOKIE_NAME);
   }
 
   private normalizeHeader(

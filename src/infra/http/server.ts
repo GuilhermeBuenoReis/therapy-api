@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import fastifyCookie from '@fastify/cookie';
 import { fastifyCors } from '@fastify/cors';
 import { fastifySwagger } from '@fastify/swagger';
 import scalar from '@scalar/fastify-api-reference';
@@ -32,6 +33,10 @@ app.register(fastifySwagger, {
     servers: [{ url: `http://localhost:${env.PORT}` }],
   },
   transform: jsonSchemaTransform,
+});
+
+app.register(fastifyCookie, {
+  hook: 'onRequest',
 });
 
 app.register(fastifyCors, {
