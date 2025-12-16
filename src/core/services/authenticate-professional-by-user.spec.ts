@@ -70,6 +70,7 @@ describe('Authenticate Professional By User', () => {
         userId: 'user-01',
         professionalId: professional.id.toString(),
         role: UserRole.Professional,
+        email: 'johndoe@example.com',
       });
     }
   });
