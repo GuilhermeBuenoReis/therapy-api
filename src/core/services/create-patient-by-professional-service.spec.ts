@@ -6,7 +6,7 @@ import { Professionals } from '../entities/professionals';
 import { User } from '../entities/user';
 import { UniqueEntityID } from '../utils/unique-entity-id';
 import { CreatePatientByProfessionalService } from './create-patient-by-professional-service';
-import { ErrorProfessionalsNotFound } from './errors/professionals-not-found';
+import { ProfessionalNotFoundError } from './errors/professional-not-found-error';
 import { ErrorUserNotFound } from './errors/user-not-found';
 
 let sut: CreatePatientByProfessionalService;
@@ -60,7 +60,7 @@ describe('Create Patient By Professional Service', () => {
       name: 'Jane Doe',
       birthDate: '1990-01-01',
       phone: '987654321',
-      notes: 'note',
+      note: 'note',
     });
 
     expect(result.isRight()).toBe(true);
@@ -80,7 +80,7 @@ describe('Create Patient By Professional Service', () => {
       name: 'Jane Doe',
       birthDate: '1990-01-01',
       phone: '987654321',
-      notes: 'note',
+      note: 'note',
     });
 
     expect(result.isLeft()).toBe(true);
@@ -107,12 +107,12 @@ describe('Create Patient By Professional Service', () => {
       name: 'Jane Doe',
       birthDate: '1990-01-01',
       phone: '987654321',
-      notes: 'note',
+      note: 'note',
     });
 
     expect(result.isLeft()).toBe(true);
     if (result.isLeft()) {
-      expect(result.value).toBeInstanceOf(ErrorProfessionalsNotFound);
+      expect(result.value).toBeInstanceOf(ProfessionalNotFoundError);
     }
     expect(inMemoryPatientRepository.items).toHaveLength(0);
   });

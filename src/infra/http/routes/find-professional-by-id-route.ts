@@ -1,17 +1,12 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { ErrorProfessionalsNotFound } from '@/core/services/errors/professionals-not-found';
+import { ProfessionalNotFoundError } from '@/core/services/errors/professional-not-found-error';
 import { FindProfessionalsByIdService } from '@/core/services/find-professionals-by-id-service';
 import { DrizzleProfessionalRepository } from '@/infra/db/repositories/drizzle-professional-repository';
-import { ProfessionalPresenter } from '@/infra/http/lib/professional-presenter';
+import { ProfessionalPresenter } from '@/infra/http/presenters/professional-presenter';
 import { betterAuthGuard } from '../hooks/better-auth-guard-hook';
 
 export const findProfessionalByIdRoute: FastifyPluginAsyncZod = async (app) => {
-  const professionalsRepository = new DrizzleProfessionalRepository();
-  const findProfessionalsByIdService = new FindProfessionalsByIdService(
-    professionalsRepository
-  );
-
   app.get(
     '/api/professionals/:professionalId',
     {
@@ -46,6 +41,11 @@ export const findProfessionalByIdRoute: FastifyPluginAsyncZod = async (app) => {
       },
     },
     async (request, reply) => {
+      const professionalsRepository = new DrizzleProfessionalRepository();
+      const findProfessionalsByIdService = new FindProfessionalsByIdService(
+        professionalsRepository
+      );
+
       try {
         const { professionalId } = request.params;
 
@@ -56,7 +56,7 @@ export const findProfessionalByIdRoute: FastifyPluginAsyncZod = async (app) => {
         if (result.isLeft()) {
           const error = result.value;
 
-          if (error instanceof ErrorProfessionalsNotFound) {
+          if (error instanceof ProfessionalNotFoundError) {
             return reply.status(404).send({ message: error.message });
           }
 

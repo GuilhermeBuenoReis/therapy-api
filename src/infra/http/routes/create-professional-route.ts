@@ -5,7 +5,7 @@ import { PaymentConfirmationRequiredError } from '@/core/services/errors/payment
 import { ErrorUserNotFound } from '@/core/services/errors/user-not-found';
 import { DrizzleProfessionalRepository } from '@/infra/db/repositories/drizzle-professional-repository';
 import { DrizzleUserRepository } from '@/infra/db/repositories/drizzle-user-repository';
-import { ProfessionalPresenter } from '@/infra/http/lib/professional-presenter';
+import { ProfessionalPresenter } from '@/infra/http/presenters/professional-presenter';
 import { betterAuthGuard } from '../hooks/better-auth-guard-hook';
 
 export const createProfessionalRoute: FastifyPluginAsyncZod = async (app) => {

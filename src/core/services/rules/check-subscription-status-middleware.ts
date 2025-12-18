@@ -26,7 +26,7 @@ export class CheckSubscriptionStatusMiddleware
   implements SubscriptionAccessMiddleware {
   constructor(
     private checkSubscriptionStatusService: CheckSubscriptionStatusService
-  ) { }
+  ) {}
 
   async enforceAccess({
     professionalId,
@@ -43,8 +43,13 @@ export class CheckSubscriptionStatusMiddleware
       return left(result.value);
     }
 
-    const { accessLevel } = result.value;
+    return this.applyAccessRules(result.value.accessLevel, operation);
+  }
 
+  private applyAccessRules(
+    accessLevel: SubscriptionAccessLevel,
+    operation: SubscriptionOperation
+  ): Either<SubscriptionMiddlewareError, null> {
     if (accessLevel === SubscriptionAccessLevel.Blocked) {
       return left(new ErrorSubscriptionAccessBlocked());
     }

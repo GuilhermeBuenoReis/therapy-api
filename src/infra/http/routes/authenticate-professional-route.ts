@@ -13,19 +13,6 @@ import { BetterAuthSessionMiddleware } from '@/infra/http/middleware/better-auth
 export const authenticateProfessionalRoute: FastifyPluginAsyncZod = async (
   app
 ) => {
-  const userRepository = new DrizzleUserRepository();
-  const professionalRepository = new DrizzleProfessionalRepository();
-  const hashComparer = new BcryptHasher();
-  const sessionGateway = new BetterAuthSessionMiddleware();
-  const sessionCookieManager = new SessionCookieManager();
-
-  const authenticateProfessionalService = new AuthenticateProfessionalService(
-    userRepository,
-    professionalRepository,
-    hashComparer,
-    sessionGateway
-  );
-
   app.post(
     '/api/auth/professional',
     {
@@ -66,6 +53,20 @@ export const authenticateProfessionalRoute: FastifyPluginAsyncZod = async (
       },
     },
     async (request, reply) => {
+      const userRepository = new DrizzleUserRepository();
+      const professionalRepository = new DrizzleProfessionalRepository();
+      const hashComparer = new BcryptHasher();
+      const sessionGateway = new BetterAuthSessionMiddleware();
+      const sessionCookieManager = new SessionCookieManager();
+
+      const authenticateProfessionalService =
+        new AuthenticateProfessionalService(
+          userRepository,
+          professionalRepository,
+          hashComparer,
+          sessionGateway
+        );
+
       try {
         const { email, password } = request.body;
         const result = await authenticateProfessionalService.execute({

@@ -1,11 +1,11 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { ErrorProfessionalsNotFound } from '@/core/services/errors/professionals-not-found';
+import { ProfessionalNotFoundError } from '@/core/services/errors/professional-not-found-error';
 import { ErrorUserNotFound } from '@/core/services/errors/user-not-found';
-import { FindProfessionalsByUserIdService } from '@/core/services/find-professionals-by-user-id-service';
+import { FindProfessionalForUserService } from '@/core/services/find-professional-for-user-service';
 import { DrizzleProfessionalRepository } from '@/infra/db/repositories/drizzle-professional-repository';
 import { DrizzleUserRepository } from '@/infra/db/repositories/drizzle-user-repository';
-import { ProfessionalPresenter } from '@/infra/http/lib/professional-presenter';
+import { ProfessionalPresenter } from '@/infra/http/presenters/professional-presenter';
 import { betterAuthGuard } from '../hooks/better-auth-guard-hook';
 
 export const findProfessionalByUserRoute: FastifyPluginAsyncZod = async (
@@ -48,11 +48,10 @@ export const findProfessionalByUserRoute: FastifyPluginAsyncZod = async (
       const professionalRepository = new DrizzleProfessionalRepository();
       const userRepository = new DrizzleUserRepository();
 
-      const findProfessionalByUserService =
-        new FindProfessionalsByUserIdService(
-          userRepository,
-          professionalRepository
-        );
+      const findProfessionalByUserService = new FindProfessionalForUserService(
+        userRepository,
+        professionalRepository
+      );
 
       try {
         const userId = request.sub.userId;
@@ -68,7 +67,7 @@ export const findProfessionalByUserRoute: FastifyPluginAsyncZod = async (
 
           if (
             error instanceof ErrorUserNotFound ||
-            error instanceof ErrorProfessionalsNotFound
+            error instanceof ProfessionalNotFoundError
           ) {
             return reply.status(404).send({ message: error.message });
           }

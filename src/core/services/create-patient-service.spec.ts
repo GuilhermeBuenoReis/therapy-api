@@ -62,7 +62,7 @@ describe('Create Patient Service', () => {
 
     const result = await sut.handle({
       userId: user.id.toString(),
-      patientId: professional.id.toString(),
+      professionalId: professional.id.toString(),
       name: 'Jane Doe',
       birthDate: '1990-01-01',
       phone: '987654321',
@@ -82,7 +82,7 @@ describe('Create Patient Service', () => {
   it('should not create a patient when user does not exist', async () => {
     const result = await sut.handle({
       userId: 'user-02',
-      patientId: 'professional-02',
+      professionalId: 'professional-02',
       name: 'Jane Doe',
       birthDate: '1990-01-01',
       phone: '987654321',
@@ -110,7 +110,7 @@ describe('Create Patient Service', () => {
 
     const result = await sut.handle({
       userId: user.id.toString(),
-      patientId: 'professional-03',
+      professionalId: 'professional-03',
       name: 'Jane Doe',
       birthDate: '1990-01-01',
       phone: '987654321',

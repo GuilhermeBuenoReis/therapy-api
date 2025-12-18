@@ -7,6 +7,10 @@ export const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
+  STRIPE_SECRET_KEY: z.string(),
+  STRIPE_WEBHOOK_SECRET: z.string(),
+  FRONTEND_SUCCESS_URL: z.string().url(),
+  FRONTEND_CANCEL_URL: z.string().url(),
 
   SEED_PROFESSIONAL_NAME: z.string().default('Seed Professional'),
   SEED_PROFESSIONAL_EMAIL: z.email().default('pro.seeder@therapy.local'),

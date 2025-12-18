@@ -32,11 +32,11 @@ export const deleteUserRoute: FastifyPluginAsyncZod = async (app) => {
       },
     },
     async (request, reply) => {
-      try {
-        const userId = request.sub.userId;
-        const userRepository = new DrizzleUserRepository();
-        const deleteUserService = new DeleteUserService(userRepository);
+      const userId = request.sub.userId;
+      const userRepository = new DrizzleUserRepository();
+      const deleteUserService = new DeleteUserService(userRepository);
 
+      try {
         const result = await deleteUserService.handle({ userId });
 
         if (result.isLeft()) {

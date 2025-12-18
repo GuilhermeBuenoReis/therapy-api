@@ -6,6 +6,7 @@ import { fastifyCors } from '@fastify/cors';
 import { fastifySwagger } from '@fastify/swagger';
 import scalar from '@scalar/fastify-api-reference';
 import { fastify } from 'fastify';
+import fastifyRawBody from 'fastify-raw-body';
 import {
   jsonSchemaTransform,
   serializerCompiler,
@@ -15,15 +16,23 @@ import {
 import { env } from '../env/index';
 import { authenticateProfessionalRoute } from './routes/authenticate-professional-route';
 import { betterAuthProxyRoute } from './routes/better-auth-proxy-route';
+import { createCheckoutSessionRoute } from './routes/create-checkout-session-route';
+import { createPatientRoute } from './routes/create-patient-route';
 import { createProfessionalRoute } from './routes/create-professional-route';
 import { createUserRoute } from './routes/create-user-route';
+import { deletePatientRoute } from './routes/delete-patient-route';
 import { deleteProfessionalRoute } from './routes/delete-professional-route';
 import { deleteUserRoute } from './routes/delete-user-route';
+import { findPatientByIdRoute } from './routes/find-patient-by-id-route';
+import { findPatientByUserRoute } from './routes/find-patient-by-user-route';
 import { findProfessionalByIdRoute } from './routes/find-professional-by-id-route';
 import { findProfessionalByUserRoute } from './routes/find-professional-by-user-route';
 import { findUserByEmailRoute } from './routes/find-user-by-email-route';
 import { findUserByIdRoute } from './routes/find-user-by-id-route';
 import { healthRoutes } from './routes/health';
+import { listPatientsByProfessionalRoute } from './routes/list-patients-by-professional-route';
+import { stripeWebhookRoute } from './routes/stripe-webhook-route';
+import { updatePatientRoute } from './routes/update-patient-route';
 import { updateProfessionalRoute } from './routes/update-professional-route';
 import { updateUserRoute } from './routes/update-user-route';
 
@@ -52,6 +61,13 @@ app.register(fastifyCors, {
   maxAge: 86_400,
 });
 
+app.register(fastifyRawBody, {
+  field: 'rawBody',
+  global: false,
+  encoding: false,
+  runFirst: true,
+});
+
 app.register(scalar, {
   routePrefix: '/scalar',
   configuration: {
@@ -67,10 +83,18 @@ app.register(findUserByIdRoute);
 app.register(updateUserRoute);
 app.register(deleteUserRoute);
 app.register(createProfessionalRoute);
+app.register(createPatientRoute);
 app.register(findProfessionalByIdRoute);
 app.register(findProfessionalByUserRoute);
+app.register(listPatientsByProfessionalRoute);
+app.register(findPatientByUserRoute);
+app.register(findPatientByIdRoute);
 app.register(updateProfessionalRoute);
+app.register(updatePatientRoute);
 app.register(deleteProfessionalRoute);
+app.register(deletePatientRoute);
+app.register(createCheckoutSessionRoute);
+app.register(stripeWebhookRoute);
 
 app.register(betterAuthProxyRoute);
 

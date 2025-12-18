@@ -1,16 +1,11 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { DeleteProfessionalsService } from '@/core/services/delete-professionals-service';
-import { ErrorProfessionalsNotFound } from '@/core/services/errors/professionals-not-found';
+import { ProfessionalNotFoundError } from '@/core/services/errors/professional-not-found-error';
 import { DrizzleProfessionalRepository } from '@/infra/db/repositories/drizzle-professional-repository';
 import { betterAuthGuard } from '../hooks/better-auth-guard-hook';
 
 export const deleteProfessionalRoute: FastifyPluginAsyncZod = async (app) => {
-  const professionalsRepository = new DrizzleProfessionalRepository();
-  const deleteProfessionalsService = new DeleteProfessionalsService(
-    professionalsRepository
-  );
-
   app.delete(
     '/api/professionals/:professionalId',
     {
@@ -31,6 +26,10 @@ export const deleteProfessionalRoute: FastifyPluginAsyncZod = async (app) => {
       },
     },
     async (request, reply) => {
+      const professionalsRepository = new DrizzleProfessionalRepository();
+      const deleteProfessionalsService = new DeleteProfessionalsService(
+        professionalsRepository
+      );
       try {
         const { professionalId } = request.params;
 
@@ -41,7 +40,7 @@ export const deleteProfessionalRoute: FastifyPluginAsyncZod = async (app) => {
         if (result.isLeft()) {
           const error = result.value;
 
-          if (error instanceof ErrorProfessionalsNotFound) {
+          if (error instanceof ProfessionalNotFoundError) {
             return reply.status(404).send({ message: error.message });
           }
 

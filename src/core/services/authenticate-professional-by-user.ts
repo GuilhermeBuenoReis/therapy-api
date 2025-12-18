@@ -1,4 +1,4 @@
-import { UserRole } from '../entities/user';
+import { type User, UserRole } from '../entities/user';
 import type {
   AuthSessionGateway,
   AuthSessionPayload,
@@ -39,20 +39,16 @@ export class AuthenticateProfessionalService {
     email,
     password,
   }: AuthenticateProfessionalServiceRequest): Promise<AuthenticateProfessionalServiceResponse> {
-    const user = await this.userRepository.findByEmail(email);
-
-    if (!user) {
-      return left(new WrongCredentialsError());
-    }
-
-    const isPasswordValid = await this.hashCompare.compare(
+    const userResult = await this.authenticateCredentials({
+      email,
       password,
-      user.password
-    );
+    });
 
-    if (!isPasswordValid) {
-      return left(new WrongCredentialsError());
+    if (userResult.isLeft()) {
+      return left(userResult.value);
     }
+
+    const user = userResult.value;
 
     if (user.role !== UserRole.Professional) {
       return left(new ProfessionalRoleRequiredError());
@@ -80,5 +76,26 @@ export class AuthenticateProfessionalService {
       sessionExpiresAt: session.expiresAt,
       authenticatedUser: sessionPayload,
     });
+  }
+
+  private async authenticateCredentials({
+    email,
+    password,
+  }: AuthenticateProfessionalServiceRequest): Promise<
+    Either<WrongCredentialsError, User>
+  > {
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      return left(new WrongCredentialsError());
+    }
+
+    const matches = await this.hashCompare.compare(password, user.password);
+
+    if (!matches) {
+      return left(new WrongCredentialsError());
+    }
+
+    return right(user);
   }
 }
