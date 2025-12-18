@@ -1,6 +1,6 @@
+import { hash } from 'bcryptjs';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import { hash } from 'bcryptjs';
 import { env } from '../env';
 import { patient } from './schemas/patient';
 import { payment } from './schemas/payment';
@@ -18,12 +18,12 @@ const db = drizzle(pool);
 async function seed() {
   console.log('🌱 Seeding database...');
 
-  await db.delete(payment);
-  await db.delete(session);
-  await db.delete(subscription);
-  await db.delete(patient);
-  await db.delete(professional);
   await db.delete(user);
+  await db.delete(subscription);
+  await db.delete(payment);
+  await db.delete(professional);
+  await db.delete(session);
+  await db.delete(patient);
 
   const {
     SEED_PROFESSIONAL_NAME,

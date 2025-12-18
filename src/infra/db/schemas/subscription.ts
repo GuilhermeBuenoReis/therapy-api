@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import {
   pgEnum,
   pgTable,
@@ -6,6 +7,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { professional } from './professional';
+import { payment } from './payment';
 
 export const subscriptionStatusEnum = pgEnum('subscription_status', [
   'active',
@@ -27,3 +29,11 @@ export const subscription = pgTable('subscriptions', {
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'date' }),
 });
+
+export const subscriptionRelations = relations(subscription, ({ many, one }) => ({
+  professional: one(professional, {
+    fields: [subscription.professionalId],
+    references: [professional.id],
+  }),
+  payments: many(payment),
+}));

@@ -7,8 +7,8 @@ import { WrongCredentialsError } from '@/core/services/errors/wrong-creadentials
 import { BcryptHasher } from '@/infra/cryptography/bcrypt-hasher';
 import { DrizzleProfessionalRepository } from '@/infra/db/repositories/drizzle-professional-repository';
 import { DrizzleUserRepository } from '@/infra/db/repositories/drizzle-user-repository';
-import { BetterAuthSessionMiddleware } from '@/infra/http/middleware/better-auth-session-middleware';
 import { SessionCookieManager } from '@/infra/http/lib/session-cookie';
+import { BetterAuthSessionMiddleware } from '@/infra/http/middleware/better-auth-session-middleware';
 
 export const authenticateProfessionalRoute: FastifyPluginAsyncZod = async (
   app

@@ -1,0 +1,1 @@
+ALTER TABLE "patients" ALTER COLUMN "note" SET DATA TYPE varchar(20000);

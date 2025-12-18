@@ -15,11 +15,16 @@ import {
 import { env } from '../env/index';
 import { authenticateProfessionalRoute } from './routes/authenticate-professional-route';
 import { betterAuthProxyRoute } from './routes/better-auth-proxy-route';
+import { createProfessionalRoute } from './routes/create-professional-route';
 import { createUserRoute } from './routes/create-user-route';
+import { deleteProfessionalRoute } from './routes/delete-professional-route';
 import { deleteUserRoute } from './routes/delete-user-route';
+import { findProfessionalByIdRoute } from './routes/find-professional-by-id-route';
+import { findProfessionalByUserRoute } from './routes/find-professional-by-user-route';
 import { findUserByEmailRoute } from './routes/find-user-by-email-route';
 import { findUserByIdRoute } from './routes/find-user-by-id-route';
 import { healthRoutes } from './routes/health';
+import { updateProfessionalRoute } from './routes/update-professional-route';
 import { updateUserRoute } from './routes/update-user-route';
 
 export const app = fastify().withTypeProvider<ZodTypeProvider>();
@@ -61,6 +66,12 @@ app.register(findUserByEmailRoute);
 app.register(findUserByIdRoute);
 app.register(updateUserRoute);
 app.register(deleteUserRoute);
+app.register(createProfessionalRoute);
+app.register(findProfessionalByIdRoute);
+app.register(findProfessionalByUserRoute);
+app.register(updateProfessionalRoute);
+app.register(deleteProfessionalRoute);
+
 app.register(betterAuthProxyRoute);
 
 app.listen({ port: env.PORT, host: '0.0.0.0' }).then(() => {
@@ -68,7 +79,7 @@ app.listen({ port: env.PORT, host: '0.0.0.0' }).then(() => {
 });
 
 if (env.NODE_ENV === 'development') {
-  const specFile = resolve(__dirname, '../../swagger.json');
+  const specFile = resolve(__dirname, '../../../swagger.json');
   app.ready().then(async () => {
     const spec = JSON.stringify(app.swagger(), null, 2);
     await writeFile(specFile, spec);

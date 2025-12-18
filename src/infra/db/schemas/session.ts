@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import {
   pgEnum,
   pgTable,
@@ -27,3 +28,14 @@ export const session = pgTable('sessions', {
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'date' }),
 });
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  patient: one(patient, {
+    fields: [session.patientId],
+    references: [patient.id],
+  }),
+  professional: one(professional, {
+    fields: [session.professionalId],
+    references: [professional.id],
+  }),
+}));

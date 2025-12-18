@@ -7,36 +7,36 @@ import { professional as professionalSchema } from '../schemas/professional';
 
 export class DrizzleProfessionalRepository implements ProfessionalsRepository {
   async findById(id: string): Promise<Professionals | null> {
-    const [row] = await db
+    const [professional] = await db
       .select()
       .from(professionalSchema)
       .where(eq(professionalSchema.id, id))
       .limit(1);
 
-    if (!row) {
+    if (!professional) {
       return null;
     }
 
-    return ProfessionalMapper.toDomain(row);
+    return ProfessionalMapper.toDomain(professional);
   }
 
   async findByUserId(userId: string): Promise<Professionals | null> {
-    const [row] = await db
+    const [professional] = await db
       .select()
       .from(professionalSchema)
       .where(eq(professionalSchema.userId, userId))
       .limit(1);
 
-    if (!row) {
+    if (!professional) {
       return null;
     }
 
-    return ProfessionalMapper.toDomain(row);
+    return ProfessionalMapper.toDomain(professional);
   }
 
   async create(professional: Professionals): Promise<void> {
     const data = ProfessionalMapper.toDatabase(professional);
-    await db.insert(professionalSchema).values(data);
+    await db.insert(professionalSchema).values(data).returning();
   }
 
   async save(professional: Professionals): Promise<void> {

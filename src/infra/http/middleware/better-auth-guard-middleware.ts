@@ -39,7 +39,10 @@ export class BetterAuthGuardMiddleware implements AuthGuardMiddleware {
       }
 
       const expiresAt = new Date(payload.expiresAt);
-      if (Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() <= Date.now()) {
+      if (
+        Number.isNaN(expiresAt.getTime()) ||
+        expiresAt.getTime() <= Date.now()
+      ) {
         return left(new UserNotAuthenticatedError());
       }
 

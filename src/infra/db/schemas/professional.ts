@@ -1,4 +1,9 @@
+import { relations } from 'drizzle-orm';
 import { pgTable, real, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { patient } from './patient';
+import { payment } from './payment';
+import { session } from './session';
+import { subscription } from './subscription';
 import { user } from './user';
 
 export const professional = pgTable('professionals', {
@@ -15,3 +20,17 @@ export const professional = pgTable('professionals', {
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'date' }),
 });
+
+export const professionalRelations = relations(
+  professional,
+  ({ many, one }) => ({
+    user: one(user, {
+      fields: [professional.userId],
+      references: [user.id],
+    }),
+    patients: many(patient),
+    sessions: many(session),
+    subscriptions: many(subscription),
+    payments: many(payment),
+  })
+);

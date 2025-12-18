@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import {
   pgEnum,
   pgTable,
@@ -5,6 +6,8 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { patient } from './patient';
+import { professional } from './professional';
 
 export const userRoleEnum = pgEnum('user_role', ['professional', 'patient']);
 
@@ -22,3 +25,14 @@ export const user = pgTable(
     updatedAt: timestamp('updated_at', { mode: 'date' }),
   },
 );
+
+export const userRelations = relations(user, ({ one }) => ({
+  patient: one(patient, {
+    fields: [user.id],
+    references: [patient.userId],
+  }),
+  professional: one(professional, {
+    fields: [user.id],
+    references: [professional.userId],
+  }),
+}));

@@ -4,6 +4,10 @@ import { auth } from '../lib/better-auth';
 
 export const betterAuthProxyRoute: FastifyPluginAsyncZod = async (app) => {
   app.route({
+    schema: {
+      summary: 'Better Auth Proxy',
+      description: 'Proxy for better-auth authentications',
+    },
     method: ['GET', 'POST'],
     url: '/api/auth/*',
     async handler(request, reply) {

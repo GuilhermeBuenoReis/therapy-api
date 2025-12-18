@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import {
   pgEnum,
   pgTable,
@@ -36,3 +37,14 @@ export const payment = pgTable('payments', {
 
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
 });
+
+export const paymentRelations = relations(payment, ({ one }) => ({
+  professional: one(professional, {
+    fields: [payment.professionalId],
+    references: [professional.id],
+  }),
+  subscription: one(subscription, {
+    fields: [payment.subscriptionId],
+    references: [subscription.id],
+  }),
+}));
