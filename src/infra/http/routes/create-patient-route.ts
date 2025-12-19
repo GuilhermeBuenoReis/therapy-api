@@ -25,7 +25,6 @@ export const createPatientRoute: FastifyPluginAsyncZod = async (app) => {
         operationId: 'createPatient',
         tags: ['Patients'],
         body: z.object({
-          userId: z.string().uuid(),
           name: z.string().min(1),
           birthDate: z.string().min(1),
           phone: z.string().min(1),
@@ -100,6 +99,8 @@ export const createPatientRoute: FastifyPluginAsyncZod = async (app) => {
         return reply.status(400).send({ message: fallbackMessage });
       };
 
+      const userId = request.sub.userId;
+
       try {
         const professionalId = request.sub.professionalId;
         const role = request.sub.role;
@@ -110,7 +111,7 @@ export const createPatientRoute: FastifyPluginAsyncZod = async (app) => {
             .send({ message: 'Only professionals can create patients.' });
         }
 
-        const { userId, name, birthDate, phone, note } = request.body;
+        const { name, birthDate, phone, note } = request.body;
 
         const result = await createPatientService.handle({
           userId,

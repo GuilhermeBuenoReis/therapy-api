@@ -94,8 +94,8 @@ async function seed() {
       professionalId: professionalRecord.id,
       monthPrice: professionalRecord.monthlyPrice,
       status: 'active',
-      startDate: new Date('2024-01-01'),
-      endDate: new Date('2024-12-31'),
+      startDate: new Date('2025-01-01'),
+      endDate: new Date('2025-12-31'),
     })
     .returning();
 
