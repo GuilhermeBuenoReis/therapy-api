@@ -16,9 +16,15 @@ import {
 import { env } from '../env/index';
 import { authenticateProfessionalRoute } from './routes/authenticate-professional-route';
 import { betterAuthProxyRoute } from './routes/better-auth-proxy-route';
+import { cancelSubscriptionRoute } from './routes/cancel-subscription-route';
+import { checkSubscriptionStatusRoute } from './routes/check-subscription-status-route';
+import { confirmUserPaymentRoute } from './routes/confirm-user-payment-route';
 import { createCheckoutSessionRoute } from './routes/create-checkout-session-route';
+import { createPatientByProfessionalRoute } from './routes/create-patient-by-professional-route';
 import { createPatientRoute } from './routes/create-patient-route';
+import { createPaymentRoute } from './routes/create-payment-route';
 import { createProfessionalRoute } from './routes/create-professional-route';
+import { createSubscriptionRoute } from './routes/create-subscription-route';
 import { createUserRoute } from './routes/create-user-route';
 import { deletePatientRoute } from './routes/delete-patient-route';
 import { deleteProfessionalRoute } from './routes/delete-professional-route';
@@ -31,6 +37,7 @@ import { findUserByEmailRoute } from './routes/find-user-by-email-route';
 import { findUserByIdRoute } from './routes/find-user-by-id-route';
 import { healthRoutes } from './routes/health';
 import { listPatientsByProfessionalRoute } from './routes/list-patients-by-professional-route';
+import { renewSubscriptionRoute } from './routes/renew-subscription-route';
 import { stripeWebhookRoute } from './routes/stripe-webhook-route';
 import { updatePatientRoute } from './routes/update-patient-route';
 import { updateProfessionalRoute } from './routes/update-professional-route';
@@ -94,7 +101,14 @@ app.register(updatePatientRoute);
 app.register(deleteProfessionalRoute);
 app.register(deletePatientRoute);
 app.register(createCheckoutSessionRoute);
+app.register(createPaymentRoute);
+app.register(confirmUserPaymentRoute);
+app.register(createSubscriptionRoute);
+app.register(renewSubscriptionRoute);
+app.register(cancelSubscriptionRoute);
+app.register(checkSubscriptionStatusRoute);
 app.register(stripeWebhookRoute);
+app.register(createPatientByProfessionalRoute);
 
 app.register(betterAuthProxyRoute);
 
