@@ -90,19 +90,27 @@ export const createSessionRoute: FastifyPluginAsyncZod = async (app) => {
         switch (true) {
           case error instanceof ErrorPatientNotFound:
           case error instanceof ProfessionalNotFoundError:
-            return reply.status(404).send({ message: (error as Error).message });
+            return reply
+              .status(404)
+              .send({ message: (error as Error).message });
           case error instanceof ErrorPatientNotLinkedToProfessional:
-            return reply.status(403).send({ message: (error as Error).message });
-          case
-            error instanceof ErrorSessionConflictForProfessional ||
+            return reply
+              .status(403)
+              .send({ message: (error as Error).message });
+          case error instanceof ErrorSessionConflictForProfessional ||
             error instanceof ErrorSessionConflictForPatient:
-            return reply.status(400).send({ message: (error as Error).message });
-          case
-            error instanceof ErrorSubscriptionAccessBlocked ||
+            return reply
+              .status(400)
+              .send({ message: (error as Error).message });
+          case error instanceof ErrorSubscriptionAccessBlocked ||
             error instanceof ErrorSubscriptionReadOnly:
-            return reply.status(403).send({ message: (error as Error).message });
+            return reply
+              .status(403)
+              .send({ message: (error as Error).message });
           case error instanceof ErrorSubscriptionNotFound:
-            return reply.status(404).send({ message: (error as Error).message });
+            return reply
+              .status(404)
+              .send({ message: (error as Error).message });
           default: {
             const fallback =
               error instanceof Error
@@ -146,6 +154,7 @@ export const createSessionRoute: FastifyPluginAsyncZod = async (app) => {
           .status(201)
           .send({ session: SessionPresenter.toHTTP(session) });
       } catch (error) {
+        console.log(error);
         request.log.error(error);
         return reply.status(500).send({ message: 'Internal server error' });
       }

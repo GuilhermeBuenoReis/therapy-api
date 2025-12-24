@@ -109,18 +109,21 @@ describe('Create Session Service', () => {
 
   it('should not create a session when professional has a conflict at the same time', async () => {
     const professional = makeProfessionals();
+    const anotherPatient = makePatient({
+      professionalsId: professional.id.toString(),
+    });
     const patient = makePatient({
       professionalsId: professional.id.toString(),
     });
 
     professionalsRepository.items.push(professional);
-    patientRepository.items.push(patient);
+    patientRepository.items.push(patient, anotherPatient);
 
     const sessionDate = new Date('2024-01-02T15:00:00.000Z');
     sessionRepository.items.push(
       makeSession({
         professionalId: professional.id.toString(),
-        patientId: patient.id.toString(),
+        patientId: anotherPatient.id.toString(),
         sessionDate,
       })
     );

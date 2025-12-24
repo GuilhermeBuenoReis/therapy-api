@@ -53,15 +53,15 @@ export class CreateSessionService {
       return left(new ErrorPatientNotFound());
     }
 
-    if (patient.professionalsId !== professionalId) {
-      return left(new ErrorPatientNotLinkedToProfessional(professionalId));
-    }
-
     const professional = await this.professionalsRepository.findById(
       professionalId
     );
     if (!professional) {
       return left(new ProfessionalNotFoundError());
+    }
+
+    if (patient.professionalsId !== professionalId) {
+      return left(new ErrorPatientNotLinkedToProfessional(professionalId));
     }
 
     const subscriptionResult = await this.subscriptionMiddleware.enforceAccess({
@@ -72,6 +72,14 @@ export class CreateSessionService {
       return left(subscriptionResult.value);
     }
 
+    const patientConflict = await this.sessionRepository.findByPatientAndDate(
+      patientId,
+      sessionDate
+    );
+    if (patientConflict) {
+      return left(new ErrorSessionConflictForPatient());
+    }
+
     const professionalConflict =
       await this.sessionRepository.findByProfessionalAndDate(
         professionalId,
@@ -79,14 +87,6 @@ export class CreateSessionService {
       );
     if (professionalConflict) {
       return left(new ErrorSessionConflictForProfessional());
-    }
-
-    const patientConflict = await this.sessionRepository.findByPatientAndDate(
-      patientId,
-      sessionDate
-    );
-    if (patientConflict) {
-      return left(new ErrorSessionConflictForPatient());
     }
 
     const session = Session.create({
