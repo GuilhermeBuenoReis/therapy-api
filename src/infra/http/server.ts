@@ -23,6 +23,7 @@ import { createCheckoutSessionRoute } from './routes/create-checkout-session-rou
 import { createPatientByProfessionalRoute } from './routes/create-patient-by-professional-route';
 import { createPatientRoute } from './routes/create-patient-route';
 import { createPaymentRoute } from './routes/create-payment-route';
+import { createSessionRoute } from './routes/create-session-route';
 import { createProfessionalRoute } from './routes/create-professional-route';
 import { createSubscriptionRoute } from './routes/create-subscription-route';
 import { createUserRoute } from './routes/create-user-route';
@@ -91,6 +92,7 @@ app.register(updateUserRoute);
 app.register(deleteUserRoute);
 app.register(createProfessionalRoute);
 app.register(createPatientRoute);
+app.register(createSessionRoute);
 app.register(findProfessionalByIdRoute);
 app.register(findProfessionalByUserRoute);
 app.register(listPatientsByProfessionalRoute);

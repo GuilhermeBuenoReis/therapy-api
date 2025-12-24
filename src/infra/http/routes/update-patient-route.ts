@@ -68,25 +68,24 @@ export const updatePatientRoute: FastifyPluginAsyncZod = async (app) => {
       );
 
       const sendErrorResponse = (error: unknown) => {
-        if (error instanceof ErrorPatientNotFound) {
-          return reply.status(404).send({ message: error.message });
+        switch (true) {
+          case error instanceof ErrorPatientNotFound:
+            return reply.status(404).send({ message: (error as Error).message });
+          case
+            error instanceof ErrorSubscriptionAccessBlocked ||
+            error instanceof ErrorSubscriptionReadOnly:
+            return reply.status(403).send({ message: (error as Error).message });
+          case error instanceof ErrorSubscriptionNotFound:
+            return reply.status(404).send({ message: (error as Error).message });
+          default: {
+            const fallbackMessage =
+              error instanceof Error
+                ? error.message
+                : 'Unable to update patient.';
+
+            return reply.status(400).send({ message: fallbackMessage });
+          }
         }
-
-        if (
-          error instanceof ErrorSubscriptionAccessBlocked ||
-          error instanceof ErrorSubscriptionReadOnly
-        ) {
-          return reply.status(403).send({ message: error.message });
-        }
-
-        if (error instanceof ErrorSubscriptionNotFound) {
-          return reply.status(404).send({ message: error.message });
-        }
-
-        const fallbackMessage =
-          error instanceof Error ? error.message : 'Unable to update patient.';
-
-        return reply.status(400).send({ message: fallbackMessage });
       };
 
       try {

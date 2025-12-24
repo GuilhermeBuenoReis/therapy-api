@@ -49,20 +49,20 @@ export const renewSubscriptionRoute: FastifyPluginAsyncZod = async (app) => {
       );
 
       const sendErrorResponse = (error: unknown) => {
-        if (error instanceof ErrorSubscriptionNotFound) {
-          return reply.status(404).send({ message: error.message });
+        switch (true) {
+          case error instanceof ErrorSubscriptionNotFound:
+            return reply.status(404).send({ message: (error as Error).message });
+          case error instanceof ErrorSubscriptionRenewalPeriodInvalid:
+            return reply.status(400).send({ message: (error as Error).message });
+          default: {
+            const fallback =
+              error instanceof Error
+                ? error.message
+                : 'Unable to renew subscription.';
+
+            return reply.status(400).send({ message: fallback });
+          }
         }
-
-        if (error instanceof ErrorSubscriptionRenewalPeriodInvalid) {
-          return reply.status(400).send({ message: error.message });
-        }
-
-        const fallback =
-          error instanceof Error
-            ? error.message
-            : 'Unable to renew subscription.';
-
-        return reply.status(400).send({ message: fallback });
       };
 
       try {

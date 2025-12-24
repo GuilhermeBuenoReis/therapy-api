@@ -1,45 +1,58 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
+import { SessionStatus } from '@/core/entities/session';
 import { CheckSubscriptionStatusService } from '@/core/services/check-subscription-status-service';
-import { CreatePatientService } from '@/core/services/create-patient-service';
+import { CreateSessionService } from '@/core/services/create-session-service';
+import { ErrorSessionConflictForPatient } from '@/core/services/errors/error-session-conflict-for-patient';
+import { ErrorSessionConflictForProfessional } from '@/core/services/errors/error-session-conflict-for-professional';
 import { ErrorSubscriptionAccessBlocked } from '@/core/services/errors/error-subscription-access-blocked';
 import { ErrorSubscriptionNotFound } from '@/core/services/errors/error-subscription-not-found';
 import { ErrorSubscriptionReadOnly } from '@/core/services/errors/error-subscription-read-only';
+import { ErrorPatientNotFound } from '@/core/services/errors/patient-not-found';
 import { ErrorPatientNotLinkedToProfessional } from '@/core/services/errors/patient-not-linked-to-a-professional';
-import { ErrorUserNotFound } from '@/core/services/errors/user-not-found';
+import { ProfessionalNotFoundError } from '@/core/services/errors/professional-not-found-error';
 import { CheckSubscriptionStatusMiddleware } from '@/core/services/rules/check-subscription-status-middleware';
 import { DrizzlePatientRepository } from '@/infra/db/repositories/drizzle-patient-repository';
 import { DrizzleProfessionalRepository } from '@/infra/db/repositories/drizzle-professional-repository';
+import { DrizzleSessionRepository } from '@/infra/db/repositories/drizzle-session-repository';
 import { DrizzleSubscriptionRepository } from '@/infra/db/repositories/drizzle-subscription-repository';
-import { DrizzleUserRepository } from '@/infra/db/repositories/drizzle-user-repository';
-import { PatientPresenter } from '@/infra/http/presenters/patient-presenter';
+import { SessionPresenter } from '@/infra/http/presenters/session-presenter';
 import { betterAuthGuard } from '../hooks/better-auth-guard-hook';
 
-export const createPatientRoute: FastifyPluginAsyncZod = async (app) => {
+export const createSessionRoute: FastifyPluginAsyncZod = async (app) => {
   app.post(
-    '/api/patients',
+    '/api/patients/:patientId/sessions',
     {
       onRequest: [betterAuthGuard],
       schema: {
-        summary: 'Create a patient profile',
-        operationId: 'createPatient',
-        tags: ['Patients'],
+        summary: 'Create a session for a patient',
+        operationId: 'createSession',
+        tags: ['Sessions'],
+        params: z.object({
+          patientId: z.uuid(),
+        }),
         body: z.object({
-          name: z.string().min(1),
-          birthDate: z.string().min(1),
-          phone: z.string().min(1),
-          note: z.string().max(20_000).optional(),
+          sessionDate: z.iso.datetime(),
+          price: z.number().positive().optional(),
+          durationMinutes: z.number().positive().optional(),
+          notes: z.string().max(20_000).optional(),
         }),
         response: {
           201: z.object({
-            patient: z.object({
-              id: z.string().uuid(),
-              userId: z.string().uuid(),
-              professionalId: z.string().uuid(),
-              name: z.string(),
-              birthDate: z.string(),
-              phone: z.string(),
-              note: z.string().nullable(),
+            session: z.object({
+              id: z.uuid(),
+              patientId: z.uuid(),
+              professionalId: z.uuid(),
+              price: z.number(),
+              notes: z.string(),
+              sessionDate: z.iso.datetime(),
+              status: z.enum([
+                SessionStatus.scheduled,
+                SessionStatus.inProgress,
+                SessionStatus.completed,
+                SessionStatus.canceled,
+              ]),
+              durationMinutes: z.number(),
               createdAt: z.iso.datetime(),
               updatedAt: z.iso.datetime().nullable(),
             }),
@@ -53,8 +66,8 @@ export const createPatientRoute: FastifyPluginAsyncZod = async (app) => {
       },
     },
     async (request, reply) => {
+      const sessionRepository = new DrizzleSessionRepository();
       const patientRepository = new DrizzlePatientRepository();
-      const userRepository = new DrizzleUserRepository();
       const professionalRepository = new DrizzleProfessionalRepository();
       const subscriptionRepository = new DrizzleSubscriptionRepository();
 
@@ -66,18 +79,24 @@ export const createPatientRoute: FastifyPluginAsyncZod = async (app) => {
         checkSubscriptionStatusService
       );
 
-      const createPatientService = new CreatePatientService(
+      const createSessionService = new CreateSessionService(
+        sessionRepository,
         patientRepository,
-        userRepository,
         professionalRepository,
         subscriptionMiddleware
       );
 
       const sendErrorResponse = (error: unknown) => {
         switch (true) {
-          case error instanceof ErrorUserNotFound:
-          case error instanceof ErrorPatientNotLinkedToProfessional:
+          case error instanceof ErrorPatientNotFound:
+          case error instanceof ProfessionalNotFoundError:
             return reply.status(404).send({ message: (error as Error).message });
+          case error instanceof ErrorPatientNotLinkedToProfessional:
+            return reply.status(403).send({ message: (error as Error).message });
+          case
+            error instanceof ErrorSessionConflictForProfessional ||
+            error instanceof ErrorSessionConflictForPatient:
+            return reply.status(400).send({ message: (error as Error).message });
           case
             error instanceof ErrorSubscriptionAccessBlocked ||
             error instanceof ErrorSubscriptionReadOnly:
@@ -85,17 +104,15 @@ export const createPatientRoute: FastifyPluginAsyncZod = async (app) => {
           case error instanceof ErrorSubscriptionNotFound:
             return reply.status(404).send({ message: (error as Error).message });
           default: {
-            const fallbackMessage =
+            const fallback =
               error instanceof Error
                 ? error.message
-                : 'Unable to create patient.';
+                : 'Unable to create session.';
 
-            return reply.status(400).send({ message: fallbackMessage });
+            return reply.status(400).send({ message: fallback });
           }
         }
       };
-
-      const userId = request.sub.userId;
 
       try {
         const professionalId = request.sub.professionalId;
@@ -104,29 +121,30 @@ export const createPatientRoute: FastifyPluginAsyncZod = async (app) => {
         if (!professionalId || role !== 'professional') {
           return reply
             .status(403)
-            .send({ message: 'Only professionals can create patients.' });
+            .send({ message: 'Only professionals can create sessions.' });
         }
 
-        const { name, birthDate, phone, note } = request.body;
+        const { patientId } = request.params;
+        const { sessionDate, price, durationMinutes, notes } = request.body;
 
-        const result = await createPatientService.handle({
-          userId,
+        const result = await createSessionService.handle({
+          patientId,
           professionalId,
-          name,
-          birthDate,
-          phone,
-          note: note ?? '',
+          sessionDate: new Date(sessionDate),
+          price,
+          durationMinutes,
+          notes: notes ?? '',
         });
 
         if (result.isLeft()) {
           return sendErrorResponse(result.value);
         }
 
-        const { patient } = result.value;
+        const { session } = result.value;
 
         return reply
           .status(201)
-          .send({ patient: PatientPresenter.toHTTP(patient) });
+          .send({ session: SessionPresenter.toHTTP(session) });
       } catch (error) {
         request.log.error(error);
         return reply.status(500).send({ message: 'Internal server error' });

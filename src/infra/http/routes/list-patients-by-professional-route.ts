@@ -52,14 +52,18 @@ export const listPatientsByProfessionalRoute: FastifyPluginAsyncZod = async (
         );
 
       const sendErrorResponse = (error: unknown) => {
-        if (error instanceof ProfessionalNotFoundError) {
-          return reply.status(404).send({ message: error.message });
+        switch (true) {
+          case error instanceof ProfessionalNotFoundError:
+            return reply.status(404).send({ message: (error as Error).message });
+          default: {
+            const fallback =
+              error instanceof Error
+                ? error.message
+                : 'Unable to fetch patients.';
+
+            return reply.status(400).send({ message: fallback });
+          }
         }
-
-        const fallback =
-          error instanceof Error ? error.message : 'Unable to fetch patients.';
-
-        return reply.status(400).send({ message: fallback });
       };
 
       try {

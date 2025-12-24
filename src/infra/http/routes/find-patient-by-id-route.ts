@@ -51,18 +51,20 @@ export const findPatientByIdRoute: FastifyPluginAsyncZod = async (app) => {
         new FindPatientForProfessionalService(patientRepository, verifyAccess);
 
       const sendErrorResponse = (error: unknown) => {
-        if (error instanceof ErrorPatientNotFound) {
-          return reply.status(404).send({ message: error.message });
+        switch (true) {
+          case error instanceof ErrorPatientNotFound:
+            return reply.status(404).send({ message: (error as Error).message });
+          case error instanceof ErrorPatientNotLinkedToProfessional:
+            return reply.status(403).send({ message: (error as Error).message });
+          default: {
+            const fallback =
+              error instanceof Error
+                ? error.message
+                : 'Unable to fetch patient.';
+
+            return reply.status(400).send({ message: fallback });
+          }
         }
-
-        if (error instanceof ErrorPatientNotLinkedToProfessional) {
-          return reply.status(403).send({ message: error.message });
-        }
-
-        const fallback =
-          error instanceof Error ? error.message : 'Unable to fetch patient.';
-
-        return reply.status(400).send({ message: fallback });
       };
 
       try {

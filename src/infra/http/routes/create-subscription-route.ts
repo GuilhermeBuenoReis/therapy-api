@@ -48,16 +48,18 @@ export const createSubscriptionRoute: FastifyPluginAsyncZod = async (app) => {
       );
 
       const sendErrorResponse = (error: unknown) => {
-        if (error instanceof ErrorSubscriptionAlreadyExists) {
-          return reply.status(409).send({ message: error.message });
+        switch (true) {
+          case error instanceof ErrorSubscriptionAlreadyExists:
+            return reply.status(409).send({ message: (error as Error).message });
+          default: {
+            const fallback =
+              error instanceof Error
+                ? error.message
+                : 'Unable to create subscription.';
+
+            return reply.status(400).send({ message: fallback });
+          }
         }
-
-        const fallback =
-          error instanceof Error
-            ? error.message
-            : 'Unable to create subscription.';
-
-        return reply.status(400).send({ message: fallback });
       };
 
       try {

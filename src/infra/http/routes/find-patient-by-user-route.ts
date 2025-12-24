@@ -48,18 +48,17 @@ export const findPatientByUserRoute: FastifyPluginAsyncZod = async (app) => {
       );
 
       const sendErrorResponse = (error: unknown) => {
-        if (error instanceof ErrorUserNotFound) {
-          return reply.status(404).send({ message: error.message });
+        switch (true) {
+          case error instanceof ErrorUserNotFound:
+          case error instanceof ErrorPatientNotFound:
+            return reply.status(404).send({ message: (error as Error).message });
+          default: {
+            const fallback =
+              error instanceof Error ? error.message : 'Unable to fetch patient.';
+
+            return reply.status(400).send({ message: fallback });
+          }
         }
-
-        if (error instanceof ErrorPatientNotFound) {
-          return reply.status(404).send({ message: error.message });
-        }
-
-        const fallback =
-          error instanceof Error ? error.message : 'Unable to fetch patient.';
-
-        return reply.status(400).send({ message: fallback });
       };
 
       try {

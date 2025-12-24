@@ -85,15 +85,14 @@ export const createProfessionalRoute: FastifyPluginAsyncZod = async (app) => {
         if (result.isLeft()) {
           const error = result.value;
 
-          if (error instanceof ErrorUserNotFound) {
-            return reply.status(404).send({ message: error.message });
+          switch (true) {
+            case error instanceof ErrorUserNotFound:
+              return reply.status(404).send({ message: (error as Error).message });
+            case error instanceof PaymentConfirmationRequiredError:
+              return reply.status(403).send({ message: (error as Error).message });
+            default:
+              return reply.status(400).send({ message: error });
           }
-
-          if (error instanceof PaymentConfirmationRequiredError) {
-            return reply.status(403).send({ message: error.message });
-          }
-
-          return reply.status(400).send({ message: error });
         }
 
         const { professionals } = result.value;

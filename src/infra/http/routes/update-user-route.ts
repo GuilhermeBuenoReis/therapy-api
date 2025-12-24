@@ -87,17 +87,16 @@ export const updateUserRoute: FastifyPluginAsyncZod = async (app) => {
         if (result.isLeft()) {
           const error = result.value;
 
-          if (error instanceof ErrorUserNotFound) {
-            return reply.status(404).send({ message: error.message });
+          switch (true) {
+            case error instanceof ErrorUserNotFound:
+              return reply.status(404).send({ message: (error as Error).message });
+            case error instanceof ErrorUserAlreadyExists:
+              return reply.status(409).send({ message: (error as Error).message });
+            default:
+              return reply.status(500).send({
+                message: (error as Error).message ?? 'Unexpected error',
+              });
           }
-
-          if (error instanceof ErrorUserAlreadyExists) {
-            return reply.status(409).send({ message: error.message });
-          }
-
-          return reply
-            .status(500)
-            .send({ message: (error as Error).message ?? 'Unexpected error' });
         }
 
         const { user } = result.value;
@@ -113,13 +112,15 @@ export const updateUserRoute: FastifyPluginAsyncZod = async (app) => {
           updatedAt: user.updatedAt ? user.updatedAt.toISOString() : null,
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          const message = error.issues.map((issue) => issue.message).join(', ');
-          return reply.status(400).send({ message });
+        switch (true) {
+          case error instanceof ZodError: {
+            const message = error.issues.map((issue) => issue.message).join(', ');
+            return reply.status(400).send({ message });
+          }
+          default:
+            request.log.error(error);
+            return reply.status(500).send({ message: 'Internal server error' });
         }
-
-        request.log.error(error);
-        return reply.status(500).send({ message: 'Internal server error' });
       }
     }
   );

@@ -41,11 +41,13 @@ export const deleteUserRoute: FastifyPluginAsyncZod = async (app) => {
 
         if (result.isLeft()) {
           const error = result.value;
-          if (error instanceof ErrorUserNotFound) {
-            return reply.status(404).send({ message: error.message });
-          }
 
-          return reply.status(500).send({ message: 'Unable to delete user' });
+          switch (true) {
+            case error instanceof ErrorUserNotFound:
+              return reply.status(404).send({ message: (error as Error).message });
+            default:
+              return reply.status(500).send({ message: 'Unable to delete user' });
+          }
         }
 
         return reply.status(204).send();

@@ -58,21 +58,26 @@ export const createUserRoute: FastifyPluginAsyncZod = async (app) => {
 
         if (result.isLeft()) {
           const error = result.value;
-          const statusCode =
-            error instanceof ErrorUserAlreadyExists ? 409 : 400;
 
-          return reply.status(statusCode).send({ message: error.message });
+          switch (true) {
+            case error instanceof ErrorUserAlreadyExists:
+              return reply.status(409).send({ message: (error as Error).message });
+            default:
+              return reply.status(400).send({ message: (error as Error).message });
+          }
         }
 
         return reply.status(201).send();
       } catch (error) {
-        if (error instanceof ZodError) {
-          const message = error.issues.map((issue) => issue.message).join(', ');
-          return reply.status(400).send({ message });
+        switch (true) {
+          case error instanceof ZodError: {
+            const message = error.issues.map((issue) => issue.message).join(', ');
+            return reply.status(400).send({ message });
+          }
+          default:
+            request.log.error(error);
+            return reply.status(500).send({ message: 'Internal server error' });
         }
-
-        request.log.error(error);
-        return reply.status(500).send({ message: 'Internal server error' });
       }
     }
   );

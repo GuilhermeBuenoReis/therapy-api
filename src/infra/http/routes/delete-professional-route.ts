@@ -40,11 +40,12 @@ export const deleteProfessionalRoute: FastifyPluginAsyncZod = async (app) => {
         if (result.isLeft()) {
           const error = result.value;
 
-          if (error instanceof ProfessionalNotFoundError) {
-            return reply.status(404).send({ message: error.message });
+          switch (true) {
+            case error instanceof ProfessionalNotFoundError:
+              return reply.status(404).send({ message: (error as Error).message });
+            default:
+              return reply.status(400).send({ message: error });
           }
-
-          return reply.status(400).send({ message: error });
         }
 
         return reply.status(204).send();
